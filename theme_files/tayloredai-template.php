@@ -203,8 +203,8 @@ Template Name: Taylored AI Home
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 <!-- Service 1 -->
-                <a href="/services/transformation"
-                    class="service-card glass-panel p-8 rounded-2xl reveal group block relative overflow-hidden hover:border-brand-primary/30">
+                <div
+                    class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <svg class="w-24 h-24 text-brand-primary" fill="currentColor" viewBox="0 0 24 24">
                             <path
@@ -226,13 +226,10 @@ Template Name: Taylored AI Home
                         Assess workflows and identify high-impact opportunities. We align stakeholders and build the
                         strategic bridge between where you are and an AI-first future.
                     </p>
-                    <div class="mt-4 flex items-center text-brand-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </a>
+                </div>
 
                 <!-- Service 2 -->
-                <a href="/services/data-readiness" class="service-card glass-panel p-8 rounded-2xl reveal group block relative overflow-hidden hover:border-brand-green/30"
+                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden"
                     style="transition-delay: 100ms">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <svg class="w-24 h-24 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
@@ -254,13 +251,10 @@ Template Name: Taylored AI Home
                         AI is only as good as the data it feeds on. We evaluate your infrastructure, governance, and
                         compliance to ensure a rock-solid foundation.
                     </p>
-                    <div class="mt-4 flex items-center text-brand-green text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </a>
+                </div>
 
                 <!-- Service 3 (Featured) -->
-                <a href="/services/agents" class="service-card glass-panel p-8 rounded-2xl reveal group block relative overflow-hidden border-brand-cyan/30 hover:border-brand-cyan/60"
+                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden border-brand-cyan/30"
                     style="transition-delay: 200ms">
                     <div
                         class="absolute inset-0 bg-gradient-to-br from-brand-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
@@ -280,13 +274,10 @@ Template Name: Taylored AI Home
                         Deploy intelligent agents that handle invoicing, scheduling, and support. We integrate these
                         seamlessly into your CRM and finance tools.
                     </p>
-                    <div class="mt-4 flex items-center text-brand-cyan text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </a>
+                </div>
 
                 <!-- Service 4 -->
-                <a href="/services/optimization" class="service-card glass-panel p-8 rounded-2xl reveal group block relative overflow-hidden hover:border-purple-500/30"
+                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden"
                     style="transition-delay: 300ms">
                     <div
                         class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform duration-300">
@@ -302,13 +293,10 @@ Template Name: Taylored AI Home
                         AI isn't "set and forget." We provide continuous monitoring and model fine-tuning to ensure your
                         ROI grows over time.
                     </p>
-                    <div class="mt-4 flex items-center text-purple-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </a>
+                </div>
 
                 <!-- Service 5 -->
-                <a href="/services/training" class="service-card glass-panel p-8 rounded-2xl reveal group block relative overflow-hidden md:col-span-2 lg:col-span-2 hover:border-orange-500/30"
+                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden md:col-span-2 lg:col-span-2"
                     style="transition-delay: 400ms">
                     <div
                         class="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center mb-6 text-orange-400 group-hover:scale-110 transition-transform duration-300">
@@ -325,10 +313,7 @@ Template Name: Taylored AI Home
                         Technology fails without adoption. We deliver hands-on training and cultural adoption programs
                         so your teams don't just use the tools—they embrace them.
                     </p>
-                    <div class="mt-4 flex items-center text-orange-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </a>
+                </div>
             </div>
         </div>
     </section>
