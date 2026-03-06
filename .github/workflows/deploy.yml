@@ -17,10 +17,21 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Synchronize Files with GoDaddy WordPress Hosting Server
-        uses: godaddy-wordpress/gd-wordpress-deployer@v1
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
         with:
-          remote_host: "83w.9ff.myftpupload.com"
-          ssh_user: "git_deployer_924441bc33_695566"
-          ssh_private_key: ${{ secrets.PRIVATE_KEY }}
-          deployment_dest: ${{ github.event.inputs.deployment_dest }}
+          ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+          log-public-key: false
+
+      - name: Add GoDaddy to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 83w.9ff.myftpupload.com >> ~/.ssh/known_hosts
+
+      - name: Deploy via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='README.md' \
+            ./ git_deployer_924441bc33_695566@83w.9ff.myftpupload.com:/home/git_deployer_924441bc33_695566/public_html/wp-content/themes/tayloredai/
