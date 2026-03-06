@@ -56,7 +56,7 @@ Template Name: Service - Transformation
     <nav class="fixed w-full z-50 top-0 glass-panel border-b border-white/5">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <a href="/" class="flex items-center gap-3">
-                <img src="/TayloredAI Logo.png" alt="Taylored AI Logo" class="h-10 w-auto object-contain" />
+                <img src="TayloredAI Logo.png" alt="Taylored AI Logo" class="h-10 w-auto object-contain" />
                 <span class="text-xl font-bold tracking-tight">Taylored AI</span>
             </a>
             <a href="/" class="text-gray-300 hover:text-brand-cyan transition-colors">← Back to Home</a>
