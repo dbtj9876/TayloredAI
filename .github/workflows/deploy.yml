@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Synchronize Files with GoDaddy WordPress Hosting Server
         uses: godaddy-wordpress/gd-wordpress-deployer@v1
