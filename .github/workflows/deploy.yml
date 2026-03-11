@@ -33,10 +33,16 @@ jobs:
           ssh-keyscan -H 83w.9ff.myftpupload.com >> ~/.ssh/known_hosts 2>&1 || true
           echo "SSH key configured"
 
-      - name: Test SSH Connection
+      - name: Create Remote Directory
         run: |
-          echo "Testing SSH connection..."
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o BatchMode=yes git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "echo 'SSH connection successful'" 2>&1 || echo "SSH test completed"
+          DEST="${{ github.event.inputs.deployment_dest }}"
+          if [ -z "$DEST" ]; then
+            DEST="public_html/wp-content/themes/tayloredai/"
+          fi
+          
+          echo "Creating remote directory: $DEST"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "mkdir -p ~/$DEST" 2>&1
+          echo "Directory created"
 
       - name: Deploy Files via Rsync
         run: |
@@ -53,13 +59,14 @@ jobs:
             --exclude='.github' \
             --exclude='*.md' \
             --exclude='*.zip' \
-            ./ git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:~/$DEST 2>&1 || {
-              echo "Rsync failed, trying manual scp..."
-              exit 1
-            }
+            ./ git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:~/$DEST 2>&1
 
-      - name: Debug - List Remote Directory
-        if: failure()
+      - name: Verify Deployment
         run: |
-          echo "Deployment failed. Checking remote directory..."
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "ls -la ~" 2>&1 || echo "Could not list remote directory"
+          DEST="${{ github.event.inputs.deployment_dest }}"
+          if [ -z "$DEST" ]; then
+            DEST="public_html/wp-content/themes/tayloredai/"
+          fi
+          
+          echo "Verifying files on server..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "ls -la ~/$DEST" 2>&1
