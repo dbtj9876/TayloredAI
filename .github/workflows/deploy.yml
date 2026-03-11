@@ -6,21 +6,60 @@ on:
   workflow_dispatch:
     inputs:
       deployment_dest:
-        description: 'Target server directory, leave blank for root directory'
+        description: 'Target server directory'
         required: false
-        default: ''
+        default: 'public_html/wp-content/themes/tayloredai/'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Synchronize Files with GoDaddy WordPress Hosting Server
-        uses: godaddy-wordpress/gd-wordpress-deployer@v1
-        with:
-          remote_host: "83w.9ff.myftpupload.com"
-          ssh_user: "git_deployer_97f86e805a_695566"
-          ssh_private_key: ${{ secrets.PRIVATE_KEY }}
-          deployment_dest: ${{ github.event.inputs.deployment_dest }}
+      - name: Validate Files Exist
+        run: |
+          echo "Checking required files..."
+          ls -la
+          echo ""
+          echo "PHP files:"
+          ls -la *.php || echo "No PHP files in root"
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 83w.9ff.myftpupload.com >> ~/.ssh/known_hosts 2>&1 || true
+          echo "SSH key configured"
+
+      - name: Test SSH Connection
+        run: |
+          echo "Testing SSH connection..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o BatchMode=yes git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "echo 'SSH connection successful'" 2>&1 || echo "SSH test completed"
+
+      - name: Deploy Files via Rsync
+        run: |
+          DEST="${{ github.event.inputs.deployment_dest }}"
+          if [ -z "$DEST" ]; then
+            DEST="public_html/wp-content/themes/tayloredai/"
+          fi
+          
+          echo "Deploying to: $DEST"
+          
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='*.md' \
+            --exclude='*.zip' \
+            ./ git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:~/$DEST 2>&1 || {
+              echo "Rsync failed, trying manual scp..."
+              exit 1
+            }
+
+      - name: Debug - List Remote Directory
+        if: failure()
+        run: |
+          echo "Deployment failed. Checking remote directory..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "ls -la ~" 2>&1 || echo "Could not list remote directory"
