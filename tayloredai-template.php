@@ -87,12 +87,23 @@ Template Name: Taylored AI Home
         /* Hover Card Glow */
         .service-card {
             transition: all 0.4s ease;
+            cursor: pointer;
         }
 
         .service-card:hover {
             transform: translateY(-8px) scale(1.02);
             border-color: rgba(6, 182, 212, 0.3);
             box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
+        }
+
+        /* Ensure service links are clickable */
+        .service-card {
+            text-decoration: none;
+            display: block;
+        }
+        
+        #services a {
+            cursor: pointer !important;
         }
 
         /* Reveal on Scroll Class */
