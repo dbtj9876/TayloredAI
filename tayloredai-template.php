@@ -224,7 +224,7 @@ Template Name: Taylored AI Home
 
                 <!-- Service 1 -->
                 <a href="/ai-transformation-roadmaps/"
-                    class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden hover:border-brand-primary/30" style="opacity: 1; transform: none;">
+                    class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden hover:border-brand-primary/30" style="opacity: 1; transform: none; z-index: 100; position: relative;">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <svg class="w-24 h-24 text-brand-primary" fill="currentColor" viewBox="0 0 24 24">
                             <path
@@ -253,7 +253,7 @@ Template Name: Taylored AI Home
 
                 <!-- Service 2 -->
                 <a href="/data-readiness-ai-audits/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden hover:border-brand-green/30"
-                    style="opacity: 1; transform: none; transition-delay: 100ms">
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 100ms">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <svg class="w-24 h-24 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
                             <path
@@ -281,7 +281,7 @@ Template Name: Taylored AI Home
 
                 <!-- Service 3 (Featured) -->
                 <a href="/ai-agents-automation/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden border-brand-cyan/30 hover:border-brand-cyan/60"
-                    style="opacity: 1; transform: none; transition-delay: 200ms">
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 200ms">
                     <div
                         class="absolute inset-0 bg-gradient-to-br from-brand-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     </div>
@@ -307,7 +307,7 @@ Template Name: Taylored AI Home
 
                 <!-- Service 4 -->
                 <a href="/ongoing-optimization/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden hover:border-purple-500/30"
-                    style="opacity: 1; transform: none; transition-delay: 300ms">
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 300ms">
                     <div
                         class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform duration-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,7 +329,7 @@ Template Name: Taylored AI Home
 
                 <!-- Service 5 -->
                 <a href="/change-management-training/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden md:col-span-2 lg:col-span-2 hover:border-orange-500/30"
-                    style="opacity: 1; transform: none; transition-delay: 400ms">
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 400ms">
                     <div
                         class="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center mb-6 text-orange-400 group-hover:scale-110 transition-transform duration-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
