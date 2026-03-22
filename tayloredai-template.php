@@ -111,11 +111,19 @@ Template Name: Taylored AI Home
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.8s ease-out;
+            pointer-events: none;
         }
 
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Service cards should always be clickable */
+        #services .reveal,
+        #services .reveal.active {
+            pointer-events: auto;
         }
 
         /* Ghosted Logo Fade Mask */
