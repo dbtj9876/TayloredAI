@@ -209,11 +209,11 @@ Template Name: Taylored AI Home
         </div>
 
         <!-- Abstract Beam/Particle visual at bottom -->
-        <div class="absolute bottom-0 w-full h-32 bg-gradient-to-t from-brand-dark to-transparent z-20"></div>
+        <div class="absolute bottom-0 w-full h-32 bg-gradient-to-t from-brand-dark to-transparent z-20 pointer-events-none"></div>
     </header>
 
     <!-- SERVICES SECTION -->
-    <section id="services" class="relative py-24 px-6">
+    <section id="services" class="relative py-24 px-6 z-30">
         <div class="max-w-7xl mx-auto">
             <div class="mb-16 reveal">
                 <h2 class="text-3xl md:text-5xl font-bold mb-4">Core Capabilities</h2>
