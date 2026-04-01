@@ -1,0 +1,48 @@
+name: Fix Final Correct Theme
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 83w.9ff.myftpupload.com >> ~/.ssh/known_hosts 2>&1 || true
+
+      - name: Find and fix tayloredai-theme2
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "
+            echo '=== All theme folders (case sensitive) ==='
+            ls -la ~/public_html/wp-content/themes/
+            echo '=== tayloredai-theme2 contents ==='
+            ls -la ~/public_html/wp-content/themes/tayloredai-theme2/ 2>/dev/null || echo 'FOLDER NOT FOUND'
+            echo '=== Find cursor-default in tayloredai-theme2 ==='
+            grep -rl 'cursor-default' ~/public_html/wp-content/themes/tayloredai-theme2/ 2>/dev/null || echo 'not found'
+            echo '=== style.css theme name ==='
+            cat ~/public_html/wp-content/themes/tayloredai-theme2/style.css 2>/dev/null | head -10
+          " 2>&1
+
+      - name: Copy fixed files to tayloredai-theme2
+        run: |
+          # Copy to tayloredai-theme2 root
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            theme_files/index.php \
+            git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:~/public_html/wp-content/themes/tayloredai-theme2/index.php 2>&1 || echo 'index.php copy failed'
+
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            theme_files/index.php \
+            git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:~/public_html/wp-content/themes/tayloredai-theme2/tayloredai-template2.php 2>&1 || echo 'template2 copy failed'
+
+          echo '=== Verify - cursor-default should be gone ==='
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "
+            grep -rl 'cursor-default' ~/public_html/wp-content/themes/tayloredai-theme2/ 2>/dev/null || echo 'SUCCESS: cursor-default gone from tayloredai-theme2'
+            grep -c 'ai-transformation-roadmaps' ~/public_html/wp-content/themes/tayloredai-theme2/tayloredai-template2.php && echo 'SUCCESS: correct slugs present' || echo 'slugs not found'
+          " 2>&1
