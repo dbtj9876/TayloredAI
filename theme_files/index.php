@@ -87,6 +87,7 @@ Template Name: Taylored AI Home
         /* Hover Card Glow */
         .service-card {
             transition: all 0.4s ease;
+            cursor: pointer;
         }
 
         .service-card:hover {
@@ -95,16 +96,34 @@ Template Name: Taylored AI Home
             box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
         }
 
+        /* Ensure service links are clickable */
+        .service-card {
+            text-decoration: none;
+            display: block;
+        }
+        
+        #services a {
+            cursor: pointer !important;
+        }
+
         /* Reveal on Scroll Class */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.8s ease-out;
+            pointer-events: none;
         }
 
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Service cards should always be clickable */
+        #services .reveal,
+        #services .reveal.active {
+            pointer-events: auto;
         }
 
         /* Ghosted Logo Fade Mask */
@@ -128,8 +147,9 @@ Template Name: Taylored AI Home
             </div>
             <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-300">
                 <a href="#services" class="hover:text-brand-cyan transition-colors">Services</a>
-                <a href="#approach" class="hover:text-brand-cyan transition-colors">Methodology</a>
-                <a href="#about" class="hover:text-brand-cyan transition-colors">About</a>
+                <a href="/ai-transformation-roadmaps/" class="hover:text-brand-cyan transition-colors">Transformation</a>
+                <a href="/ai-agents-automation/" class="hover:text-brand-cyan transition-colors">Agents</a>
+                <a href="#contact" class="hover:text-brand-cyan transition-colors">Contact</a>
             </div>
             <a href="#contact"
                 class="px-5 py-2 rounded-full text-sm font-semibold bg-white text-black hover:bg-brand-cyan hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(6,182,212,0.6)]">
@@ -189,11 +209,11 @@ Template Name: Taylored AI Home
         </div>
 
         <!-- Abstract Beam/Particle visual at bottom -->
-        <div class="absolute bottom-0 w-full h-32 bg-gradient-to-t from-brand-dark to-transparent z-20"></div>
+        <div class="absolute bottom-0 w-full h-32 bg-gradient-to-t from-brand-dark to-transparent z-20 pointer-events-none"></div>
     </header>
 
     <!-- SERVICES SECTION -->
-    <section id="services" class="relative py-24 px-6">
+    <section id="services" class="relative py-24 px-6 z-30">
         <div class="max-w-7xl mx-auto">
             <div class="mb-16 reveal">
                 <h2 class="text-3xl md:text-5xl font-bold mb-4">Core Capabilities</h2>
@@ -203,8 +223,8 @@ Template Name: Taylored AI Home
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 <!-- Service 1 -->
-                <div
-                    class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden">
+                <a href="/ai-transformation-roadmaps/"
+                    class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden hover:border-brand-primary/30" style="opacity: 1; transform: none; z-index: 100; position: relative;">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <svg class="w-24 h-24 text-brand-primary" fill="currentColor" viewBox="0 0 24 24">
                             <path
@@ -226,11 +246,14 @@ Template Name: Taylored AI Home
                         Assess workflows and identify high-impact opportunities. We align stakeholders and build the
                         strategic bridge between where you are and an AI-first future.
                     </p>
-                </div>
+                    <div class="mt-4 flex items-center text-brand-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
 
                 <!-- Service 2 -->
-                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden"
-                    style="transition-delay: 100ms">
+                <a href="/data-readiness-ai-audits/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden hover:border-brand-green/30"
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 100ms">
                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <svg class="w-24 h-24 text-brand-green" fill="currentColor" viewBox="0 0 24 24">
                             <path
@@ -251,11 +274,14 @@ Template Name: Taylored AI Home
                         AI is only as good as the data it feeds on. We evaluate your infrastructure, governance, and
                         compliance to ensure a rock-solid foundation.
                     </p>
-                </div>
+                    <div class="mt-4 flex items-center text-brand-green text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
 
                 <!-- Service 3 (Featured) -->
-                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden border-brand-cyan/30"
-                    style="transition-delay: 200ms">
+                <a href="/ai-agents-automation/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden border-brand-cyan/30 hover:border-brand-cyan/60"
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 200ms">
                     <div
                         class="absolute inset-0 bg-gradient-to-br from-brand-cyan/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     </div>
@@ -274,11 +300,14 @@ Template Name: Taylored AI Home
                         Deploy intelligent agents that handle invoicing, scheduling, and support. We integrate these
                         seamlessly into your CRM and finance tools.
                     </p>
-                </div>
+                    <div class="mt-4 flex items-center text-brand-cyan text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
 
                 <!-- Service 4 -->
-                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden"
-                    style="transition-delay: 300ms">
+                <a href="/ongoing-optimization/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden hover:border-purple-500/30"
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 300ms">
                     <div
                         class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform duration-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,11 +322,14 @@ Template Name: Taylored AI Home
                         AI isn't "set and forget." We provide continuous monitoring and model fine-tuning to ensure your
                         ROI grows over time.
                     </p>
-                </div>
+                    <div class="mt-4 flex items-center text-purple-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
 
                 <!-- Service 5 -->
-                <div class="service-card glass-panel p-8 rounded-2xl reveal group cursor-default relative overflow-hidden md:col-span-2 lg:col-span-2"
-                    style="transition-delay: 400ms">
+                <a href="/change-management-training/" class="service-card glass-panel p-8 rounded-2xl group block relative overflow-hidden md:col-span-2 lg:col-span-2 hover:border-orange-500/30"
+                    style="opacity: 1; transform: none; z-index: 100; position: relative; transition-delay: 400ms">
                     <div
                         class="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center mb-6 text-orange-400 group-hover:scale-110 transition-transform duration-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -313,7 +345,10 @@ Template Name: Taylored AI Home
                         Technology fails without adoption. We deliver hands-on training and cultural adoption programs
                         so your teams don't just use the tools—they embrace them.
                     </p>
-                </div>
+                    <div class="mt-4 flex items-center text-orange-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Learn more <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
             </div>
         </div>
     </section>
