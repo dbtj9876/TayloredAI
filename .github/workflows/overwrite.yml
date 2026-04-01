@@ -1,0 +1,33 @@
+name: Direct Overwrite Fix
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 83w.9ff.myftpupload.com >> ~/.ssh/known_hosts 2>&1 || true
+
+      - name: Overwrite index.php in ALL theme folders
+        run: |
+          # Copy the fixed index.php to all possible active theme locations
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            theme_files/index.php \
+            git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:~/public_html/wp-content/themes/TayloredAI-Theme/index.php
+
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            theme_files/index.php \
+            git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:~/public_html/wp-content/themes/tayloredai/theme_files/index.php
+
+          echo "Done - verifying sizes:"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com \
+            "wc -c ~/public_html/wp-content/themes/TayloredAI-Theme/index.php ~/public_html/wp-content/themes/tayloredai/theme_files/index.php ~/public_html/wp-content/themes/tayloredai/tayloredai-template2.php 2>/dev/null; grep -c 'cursor-default' ~/public_html/wp-content/themes/TayloredAI-Theme/index.php && echo 'cursor-default still there' || echo 'cursor-default GONE - fix applied'"
