@@ -1,0 +1,37 @@
+name: Fix Root Template
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 83w.9ff.myftpupload.com >> ~/.ssh/known_hosts 2>&1 || true
+
+      - name: Overwrite tayloredai-template2.php and index in tayloredai root
+        run: |
+          BASE=~/public_html/wp-content/themes/tayloredai
+
+          echo "=== Before fix ==="
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com \
+            "grep -c 'cursor-default' ${BASE}/tayloredai-template2.php 2>/dev/null && echo 'cursor-default in template2' || echo 'template2 clean'"
+
+          # Copy fixed file to ALL possible homepage template locations in tayloredai root
+          for TARGET in tayloredai-template2.php tayloredai-template.php index.php front-page.php; do
+            scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+              theme_files/index.php \
+              git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com:${BASE}/$TARGET || true
+          done
+
+          echo "=== After fix ==="
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com \
+            "ls -la ${BASE}/*.php; echo '---'; grep -c 'cursor-default' ${BASE}/*.php 2>/dev/null || echo 'No cursor-default found - SUCCESS'"
