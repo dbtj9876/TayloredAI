@@ -8,7 +8,7 @@ on:
       deployment_dest:
         description: 'Target server directory'
         required: false
-        default: 'public_html/wp-content/themes/TayloredAI-Theme2/'
+        default: 'public_html/wp-content/themes/tayloredai/theme_files/'
 
 jobs:
   deploy:
@@ -37,7 +37,7 @@ jobs:
         run: |
           DEST="${{ github.event.inputs.deployment_dest }}"
           if [ -z "$DEST" ]; then
-            DEST="public_html/wp-content/themes/TayloredAI-Theme2/"
+            DEST="public_html/wp-content/themes/tayloredai/theme_files/"
           fi
           
           echo "Creating remote directory: $DEST"
@@ -48,7 +48,7 @@ jobs:
         run: |
           DEST="${{ github.event.inputs.deployment_dest }}"
           if [ -z "$DEST" ]; then
-            DEST="public_html/wp-content/themes/TayloredAI-Theme2/"
+            DEST="public_html/wp-content/themes/tayloredai/theme_files/"
           fi
           
           echo "Deploying theme_files/ to: $DEST"
@@ -65,7 +65,7 @@ jobs:
         run: |
           DEST="${{ github.event.inputs.deployment_dest }}"
           if [ -z "$DEST" ]; then
-            DEST="public_html/wp-content/themes/TayloredAI-Theme2/"
+            DEST="public_html/wp-content/themes/tayloredai/theme_files/"
           fi
           
           echo "Verifying files on server..."
