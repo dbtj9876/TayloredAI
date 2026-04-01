@@ -1,0 +1,30 @@
+name: Find Active Theme Folder
+
+on:
+  workflow_dispatch:
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 83w.9ff.myftpupload.com >> ~/.ssh/known_hosts 2>&1 || true
+
+      - name: Find theme with style.css Theme Name Taylored AI
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "
+            echo '=== All theme folders ==='
+            ls -la ~/public_html/wp-content/themes/
+            echo '=== Find style.css with Theme Name: Taylored AI ==='
+            grep -rl 'Theme Name: Taylored AI' ~/public_html/wp-content/themes/*/style.css 2>/dev/null
+            echo '=== Find tayloredai-template2.php everywhere ==='
+            find ~/public_html/wp-content/themes -name 'tayloredai-template2.php' 2>/dev/null
+            echo '=== Check taylored-ai folder ==='
+            ls ~/public_html/wp-content/themes/taylored-ai/ 2>/dev/null || echo 'no taylored-ai folder'
+            echo '=== Check taylored_ai folder ==='
+            ls ~/public_html/wp-content/themes/taylored_ai/ 2>/dev/null || echo 'no taylored_ai folder'
+          " 2>&1
