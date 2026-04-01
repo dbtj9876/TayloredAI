@@ -17,16 +17,12 @@ jobs:
       - name: Find WordPress installation
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no git_deployer_97f86e805a_695566@83w.9ff.myftpupload.com "
-            echo '=== HOME DIR ==='
-            pwd
-            echo '=== public_html themes ==='
-            ls -la ~/public_html/wp-content/themes/
-            echo '=== Find active theme index.php ==='
-            find ~/public_html/wp-content/themes -name 'index.php' | xargs grep -l 'service-card' 2>/dev/null
-            echo '=== Find cursor-default ==='
-            find ~/public_html/wp-content/themes -name '*.php' | xargs grep -l 'cursor-default' 2>/dev/null
-            echo '=== WP config active theme ==='
-            grep -r 'TayloredAI\|template\|stylesheet' ~/public_html/wp-config.php 2>/dev/null || echo 'not in wp-config'
-            echo '=== wp-options active theme ==='
-            find ~/public_html -name 'wp-options.php' 2>/dev/null
+            echo '=== tayloredai theme ROOT files ==='
+            ls -la ~/public_html/wp-content/themes/tayloredai/
+            echo '=== tayloredai theme_files/ ==='
+            ls -la ~/public_html/wp-content/themes/tayloredai/theme_files/
+            echo '=== cursor-default in tayloredai ROOT ==='
+            grep -l 'cursor-default' ~/public_html/wp-content/themes/tayloredai/*.php 2>/dev/null || echo 'none in root'
+            echo '=== TayloredAI-Theme ROOT files ==='
+            ls -la ~/public_html/wp-content/themes/TayloredAI-Theme/
           " 2>&1
