@@ -1,0 +1,52 @@
+name: Deploy to Cloudways
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.CLOUDWAYS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 165.245.128.124 >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy theme files to Cloudways
+        run: |
+          THEME_PATH="/home/1608921.cloudwaysapps.com/wmwpbwceew/public_html/wp-content/themes/TayloredAI-Theme2-active"
+          
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p 22" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='*.md' \
+            ./theme_files/ master_vvkjcvcrhj@165.245.128.124:${THEME_PATH}/
+
+          # Also sync home.php and front-page.php from the main template
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -P 22 \
+            ./theme_files/tayloredai-template2.php \
+            master_vvkjcvcrhj@165.245.128.124:${THEME_PATH}/home.php
+
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -P 22 \
+            ./theme_files/tayloredai-template2.php \
+            master_vvkjcvcrhj@165.245.128.124:${THEME_PATH}/front-page.php
+
+      - name: Flush cache
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p 22 \
+            master_vvkjcvcrhj@165.245.128.124 \
+            "cd /home/1608921.cloudwaysapps.com/wmwpbwceew/public_html && wp cache flush && find wp-content/cache -type f -delete 2>/dev/null || true && echo 'Cache cleared'"
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p 22 \
+            master_vvkjcvcrhj@165.245.128.124 \
+            "ls -la /home/1608921.cloudwaysapps.com/wmwpbwceew/public_html/wp-content/themes/TayloredAI-Theme2-active/"
