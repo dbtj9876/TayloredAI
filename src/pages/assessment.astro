@@ -1,0 +1,215 @@
+---
+import Base from '../layouts/Base.astro';
+import { BOOKING_URL, FORM_KEY } from '../config';
+---
+<Base title="AI Readiness Assessment — Taylored AI" description="12 quick questions. Your AI Readiness Score instantly, with a plain-English read on your strongest opportunity.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../">Home</a> / AI Assessment</div>
+      <h1>Where should AI fit <span class="grad-text">in your business?</span></h1>
+      <p class="lede">
+        12 questions, about 5 minutes. You will see your score and recommendations immediately —
+        no email wall. If you want a copy of your results, there is an optional spot at the end.
+      </p>
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:16px">
+    <div class="quiz-box" id="quiz"></div>
+  </section>
+</Base>
+
+<script is:inline>
+  (function () {
+    const QUESTIONS = [
+      {
+        q: 'How much of your team\'s week is repetitive manual work — data entry, copy-paste between systems, chasing follow-ups?',
+        opts: ['A huge part of the week', 'A noticeable chunk', 'A little', 'Almost none'],
+      },
+      {
+        q: 'How is your team currently using AI tools (Copilot, ChatGPT, etc.)?',
+        opts: ['Daily, for real work', 'Some experimenting', 'Curious but haven\'t started', 'Actively avoiding it'],
+      },
+      {
+        q: 'Do you have documented, repeatable processes (SOPs) for your core workflows?',
+        opts: ['Yes, for most things', 'For the important ones', 'It\'s mostly in people\'s heads', 'What\'s an SOP?'],
+      },
+      {
+        q: 'How would you describe your business data (customer records, documents, financials)?',
+        opts: ['Clean and centralized', 'Mostly good, some mess', 'Scattered across systems', 'Spreadsheets everywhere'],
+      },
+      {
+        q: 'How clear are your goals for AI right now?',
+        opts: ['Specific problems already picked out', 'General areas in mind', 'Just know we should do something', 'No idea where to start'],
+      },
+      {
+        q: 'How does your team typically react to new technology?',
+        opts: ['Adopts fast and runs with it', 'Willing with training', 'Skeptical but persuadable', 'Resistant'],
+      },
+      {
+        q: 'Do you have rules for how staff can use AI with company or customer data?',
+        opts: ['Yes, written and enforced', 'Informal guidelines', 'None, but we know we need them', 'Haven\'t thought about it'],
+      },
+      {
+        q: 'Is there budget available for AI or process improvements this year?',
+        opts: ['Yes, allocated', 'Could be freed up for the right case', 'Tight, but not zero', 'No budget'],
+      },
+      {
+        q: 'Are your core systems (email, CRM, accounting, documents) connected or siloed?',
+        opts: ['Well integrated', 'Partially connected', 'Mostly siloed', 'Mostly paper and spreadsheets'],
+      },
+      {
+        q: 'How do you measure whether a tool pays off?',
+        opts: ['We track actual numbers', 'Gut feel mostly', 'We don\'t measure', 'We\'ve never bought tools worth measuring'],
+      },
+      {
+        q: 'Who would own AI initiatives internally?',
+        opts: ['A clear owner with time for it', 'Me — I\'d drive it', 'Nobody right now', 'We\'d need to figure that out'],
+      },
+      {
+        q: 'What is the single biggest bottleneck in your business today?',
+        opts: ['Manual admin work', 'Slow response to customers', 'Data and insight gaps', 'Inconsistent quality / team adoption'],
+      },
+    ];
+    // Last question is informational — used to tailor the recommendation, not scored.
+    const SCORED = 11;
+    const MAX = SCORED * 3;
+
+    const BANDS = [
+      { min: 0.72, name: 'AI-Ready', sub: 'You have the foundations — processes, data, and buy-in. AI will pay off fastest for you.' },
+      { min: 0.42, name: 'Emerging', sub: 'Real opportunities exist, but a few foundations need work first. Quick wins are still within reach.' },
+      { min: 0, name: 'Foundations First', sub: 'The biggest wins will come from getting processes and data AI-ready — then automating.' },
+    ];
+
+    const RECO = {
+      'AI-Ready': [
+        'You are a strong candidate for Agentic AI Solutions — pick your single most repetitive multi-step workflow and automate it first.',
+        'Lock in AI Governance now, before usage spreads on its own. Right-sized rules are cheap now, expensive later.',
+        'An AI Process Audit will rank your top 3 opportunities by ROI so you sequence them with confidence.',
+      ],
+      'Emerging': [
+        'Start with an AI Process Audit — with mixed foundations, knowing what to do FIRST is worth more than doing something fast.',
+        'AI Education for your team will raise the floor: skeptics become users, and users find use cases you would never spot.',
+        'Pick one contained workflow (not your core process) for a pilot agent — a quick, visible win builds momentum.',
+      ],
+      'Foundations First': [
+        'Document your 3 most repeated workflows before automating anything — AI amplifies process, good or bad.',
+        'AI Education (executive briefing plus hands-on sessions) builds the shared vocabulary everything else depends on.',
+        'Set basic AI Governance now — a one-page acceptable-use policy prevents the most common data mistakes.',
+      ],
+    };
+    const BOTTLENECK_NOTE = {
+      'Manual admin work': 'Your manual admin work is the classic first target for agentic AI — high volume, rule-based, low risk.',
+      'Slow response to customers': 'Customer-response lag usually hides both an automation opportunity and a knowledge-base (RAG) opportunity.',
+      'Data and insight gaps': 'Data and insight gaps often point to RAG — letting staff and customers get instant answers from your own documents.',
+      'Inconsistent quality / team adoption': 'Quality and adoption issues usually respond best to a combination of education and process design before heavy automation.',
+    };
+
+    const box = document.getElementById('quiz');
+    if (!box) return;
+    let step = 0;
+    const answers = new Array(QUESTIONS.length).fill(null);
+
+    function renderStart() {
+      box.innerHTML = `
+        <div style="text-align:center;padding:24px 0">
+          <img src="../logo.png" alt="Taylored AI" style="width:76px;height:76px;border-radius:16px;margin:0 auto 18px;box-shadow:0 10px 30px rgba(45,230,150,0.3)" />
+          <h2 style="font-size:1.6rem;margin-bottom:10px">AI Readiness Assessment</h2>
+          <p style="color:var(--muted);max-width:420px;margin:0 auto 26px">12 questions · about 5 minutes · instant score</p>
+          <button class="btn btn-primary" id="start">Start the assessment</button>
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:16px">No email required to see your results.</p>
+        </div>`;
+      document.getElementById('start').addEventListener('click', () => { step = 0; renderQ(); });
+    }
+
+    function renderQ() {
+      const q = QUESTIONS[step];
+      const pct = Math.round((step / QUESTIONS.length) * 100);
+      box.innerHTML = `
+        <div class="quiz-progress"><div class="bar" style="width:${pct}%"></div></div>
+        <div class="quiz-qnum">Question ${step + 1} of ${QUESTIONS.length}</div>
+        <div class="quiz-question">${q.q}</div>
+        <div class="quiz-options">
+          ${q.opts.map((o, i) => `<button class="quiz-opt" data-i="${i}">${o}</button>`).join('')}
+        </div>
+        <div class="quiz-nav">
+          <button class="quiz-back" id="back" ${step === 0 ? 'disabled' : ''}>← Back</button>
+          <span style="font-size:0.8rem;color:var(--muted)">${Math.round((step / QUESTIONS.length) * 100)}% complete</span>
+        </div>`;
+      box.querySelectorAll('.quiz-opt').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          answers[step] = (btn as HTMLElement).dataset.i;
+          step += 1;
+          if (step < QUESTIONS.length) renderQ(); else renderResult();
+        });
+      });
+      const back = document.getElementById('back');
+      if (back) back.addEventListener('click', () => { if (step > 0) { step -= 1; renderQ(); } });
+    }
+
+    function renderResult() {
+      const scored = answers.slice(0, SCORED);
+      const total = scored.reduce((sum, a) => sum + (a === null ? 0 : 3 - Number(a)), 0);
+      // Higher points = earlier options = stronger readiness. total max = 33.
+      const pctScore = Math.round((total / MAX) * 100);
+      const band = BANDS.find((b) => pctScore >= b.min * 100) ?? BANDS[BANDS.length - 1];
+      const bottleneck = QUESTIONS[QUESTIONS.length - 1].opts[Number(answers[QUESTIONS.length - 1] ?? 0)] ?? '';
+      const recos = RECO[band.name as keyof typeof RECO];
+
+      box.innerHTML = `
+        <div class="quiz-progress"><div class="bar" style="width:100%"></div></div>
+        <div style="text-align:center">
+          <div class="score-ring"><div class="val">${pctScore}<small>/100</small></div></div>
+          <div class="result-band">${band.name}</div>
+          <div class="result-sub">${band.sub}</div>
+        </div>
+        ${bottleneck ? `<div class="reco"><span class="n">•</span><span><strong>Your bottleneck — ${bottleneck}.</strong> ${BOTTLENECK_NOTE[bottleneck as keyof typeof BOTTLENECK_NOTE]}</span></div>` : ''}
+        <h3 style="margin:24px 0 14px">Your recommended next steps</h3>
+        ${recos.map((r, i) => `<div class="reco"><span class="n">${i + 1}</span><span>${r}</span></div>`).join('')}
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;justify-content:center">
+          <a href="${BOOKING_URL}" class="btn btn-primary">Book a free consult</a>
+          <a href="../services/" class="btn btn-ghost">Explore the services</a>
+        </div>
+        <div style="margin-top:32px;padding-top:26px;border-top:1px solid var(--line)">
+          <p style="font-size:0.9rem;color:var(--ink-soft);margin-bottom:14px"><strong>Want a copy of your results?</strong> Enter your email and I will send your score, band, and recommended next steps — plus a one-page breakdown. No follow-up spam; you decide if we ever talk.</p>
+          <form id="result-form" style="display:flex;gap:10px;flex-wrap:wrap">
+            <input type="email" name="email" placeholder="you@company.com" required style="flex:1;min-width:220px;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font:inherit;background:var(--bg);color:var(--ink)" />
+            <button class="btn btn-primary" type="submit">Send my results</button>
+          </form>
+          <p class="form-status" id="result-status" hidden></p>
+        </div>`;
+
+      const form = document.getElementById('result-form') as HTMLFormElement | null;
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const status = document.getElementById('result-status') as HTMLElement | null;
+        if (!status) return;
+        const email = new FormData(form).get('email');
+        try {
+          const res = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              subject: 'Assessment results request — tayloredai.com',
+              access_key: ${JSON.stringify(FORM_KEY)},
+              email: email,
+              message: `AI Readiness Assessment results:\nScore: ${pctScore}/100\nBand: ${band.name}\nBottleneck: ${bottleneck}\nRecommended next steps:\n${recos.map((r, i) => `${i + 1}. ${r}`).join('\n')}`,
+            }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            status.textContent = 'On its way — check your inbox in a few minutes.';
+            status.className = 'form-status ok';
+            form.reset();
+          } else throw new Error();
+        } catch {
+          status.textContent = 'Could not send right now — email info@tayloredai.com and you will get the same results.';
+          status.className = 'form-status err';
+        }
+        status.hidden = false;
+      });
+    }
+
+    renderStart();
+  })();
+</script>

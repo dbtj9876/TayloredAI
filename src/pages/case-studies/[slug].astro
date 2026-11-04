@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const cases = await getCollection('caseStudies', ({ data }) => !data.draft);
+  return cases.map((c) => ({ params: { slug: c.id }, props: { caseStudy: c } }));
+}
+const { caseStudy } = Astro.props;
+const { Content } = await render(caseStudy);
+const d = caseStudy.data;
+---
+<Base title={`${d.client} — Case Study — Taylored AI`} description={d.summary}>
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../../">Home</a> / <a href="../">Case Studies</a> / {d.client}</div>
+      <span class="eyebrow">{d.industry}</span>
+      <h1>{d.client}</h1>
+      <p class="lede">{d.summary}</p>
+      {d.services.map((s) => <span class="pillar-chip">{s}</span>)}
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:12px">
+    <div class="prose">
+      <h2>The challenge</h2>
+      <p>{d.challenge}</p>
+      <h2>What we did</h2>
+      <Content />
+      <h2>Results</h2>
+      <ul>
+        {d.results.map((r) => <li>{r}</li>)}
+      </ul>
+    </div>
+  </section>
+</Base>

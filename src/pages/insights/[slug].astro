@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import { BOOKING_URL } from '../../config';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((p) => ({ params: { slug: p.id }, props: { post: p } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<Base title={`${post.data.title} — Taylored AI`} description={post.data.description}>
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../../">Home</a> / <a href="../">Insights</a> / {post.data.title}</div>
+      <div class="article-head">
+        <h1>{post.data.title}</h1>
+        <p class="meta">
+          {post.data.pubDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </p>
+        {post.data.tags.map((t) => <span class="tag-chip">{t}</span>)}
+      </div>
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:12px">
+    <div class="prose">
+      <Content />
+      <div class="assess" style="margin-top:44px;padding:34px">
+        <div>
+          <h2 style="font-size:1.3rem">Want this kind of thinking applied to your business?</h2>
+          <p>Book a free 30-minute consult or take the AI readiness assessment.</p>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="../../assessment/" class="btn btn-light" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.35)">Take the assessment</a>
+          <a href={BOOKING_URL} class="btn btn-light">Book a call</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

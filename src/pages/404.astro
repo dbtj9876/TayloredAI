@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { BOOKING_URL } from '../config';
+---
+<Base title="Page not found — Taylored AI" description="Page not found.">
+  <section class="section wrap" style="text-align:center;padding-top:96px;padding-bottom:96px">
+    <h1 style="font-size:clamp(2.4rem,5vw,3.6rem)">404</h1>
+    <p class="lede" style="margin:14px auto 28px;max-width:460px">
+      That page does not exist — but your AI questions are still very answerable.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="./" class="btn btn-primary">Back to the homepage</a>
+      <a href="./assessment/" class="btn btn-ghost">Take the AI assessment</a>
+      <a href={BOOKING_URL} class="btn btn-ghost">Book a call</a>
+    </div>
+  </section>
+</Base>

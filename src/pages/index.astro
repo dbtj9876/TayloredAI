@@ -1,0 +1,195 @@
+---
+import Base from '../layouts/Base.astro';
+import { BOOKING_URL, FORM_KEY } from '../config';
+import { services } from '../data/services';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+<Base>
+  <header class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">AI consulting for small & mid-sized businesses</span>
+        <h1>AI that pays for itself. <span class="grad-text">Not AI for show.</span></h1>
+        <p class="lede">
+          Day-to-day friction — quotes that take days, follow-ups that slip, AI risk nobody's
+          managing, teams that don't trust the tools — looks different in every business.
+          Taylored AI pinpoints yours, then builds the fix from four pillars: governance,
+          agentic AI, process audits, and education. Tailored to your business, delivered
+          in weeks, not quarters.
+        </p>
+        <div class="hero-ctas">
+          <a href={BOOKING_URL} class="btn btn-primary">Book a free 30-minute consult</a>
+          <a href="./assessment/" class="btn btn-ghost">Take the 5-minute AI assessment</a>
+        </div>
+        <p class="hero-note">
+          Led by <strong>an enterprise Microsoft Copilot program manager</strong> and
+          <strong>certified AI Solution Architect</strong> — enterprise-grade discipline, right-sized for your business.
+        </p>
+      </div>
+      <aside class="hero-card">
+        <img class="logo-badge" src="./logo.png" alt="Taylored AI" />
+        <h3>Why clients choose Taylored AI</h3>
+        <ul class="cred-list" style="margin-top:16px">
+          <li><span class="dot"></span>Runs Copilot & agent programs for a Fortune 500 enterprise — every day</li>
+          <li><span class="dot"></span>Certified AI Solution Architect, not a reseller reading a script</li>
+          <li><span class="dot"></span>Plain-English advice on build vs. buy vs. skip</li>
+          <li><span class="dot"></span>Fixed-scope, fixed-price engagements — no open-ended retainers</li>
+        </ul>
+      </aside>
+    </div>
+  </header>
+
+  <section class="section wrap" id="services">
+    <div class="section-head">
+      <span class="eyebrow">Services</span>
+      <h2>Four ways we put AI to work</h2>
+      <p class="lede" style="margin-top:10px">Every engagement starts with your business problem — never with a tool looking for one.</p>
+    </div>
+    <div class="services-grid">
+      {services.map((s) => (
+        <article class="service-card">
+          <span class="tag">{s.tag}</span>
+          <h3>{s.title}</h3>
+          <p>{s.short}</p>
+          <p style="margin-top:16px"><a class="read" href={`./services/${s.slug}/`}>Explore {s.title} →</a></p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section approach">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">How it works</span>
+        <h2>From first call to working AI — fast</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="num">01 — Assess</span>
+          <h3>Find the real opportunities</h3>
+          <p>A short discovery process maps your workflows, data, and goals. Most clients find 2–3 opportunities worth pursuing and several expensive distractions worth skipping.</p>
+        </div>
+        <div class="step">
+          <span class="num">02 — Plan</span>
+          <h3>Right-size the roadmap</h3>
+          <p>You get a pragmatic plan with fixed scope and pricing — sequenced by impact, not by what's trendy. Quick wins first, foundations underneath.</p>
+        </div>
+        <div class="step">
+          <span class="num">03 — Deliver</span>
+          <h3>Ship, train, measure</h3>
+          <p>We build it, train your team to use it, and define the metrics that prove it's working. You own everything — no lock-in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap" id="assessment">
+    <div class="assess">
+      <div>
+        <span class="eyebrow" style="color:#7FD8C9">Free AI readiness assessment</span>
+        <h2>Where should AI fit in your business?</h2>
+        <p>Answer 12 quick questions and get your AI Readiness Score instantly — with a plain-English read on your strongest opportunity. No gatekeeping, no 40-page PDF.</p>
+      </div>
+      <a href="./assessment/" class="btn btn-light">Start the assessment — 5 minutes</a>
+    </div>
+  </section>
+
+  <section class="section wrap" id="insights">
+    <div class="section-head">
+      <span class="eyebrow">Insights</span>
+      <h2>Lessons from the field</h2>
+    </div>
+    {posts.length > 0 ? (
+      <div class="cards-grid">
+        {posts.map((p) => (
+          <a class="card" href={`./insights/${p.id}/`}>
+            <span class="meta">{p.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <h3>{p.data.title}</h3>
+            <p>{p.data.description}</p>
+            <span class="read">Read article →</span>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div class="insight-note">
+        <strong>Insights is coming soon.</strong> Real-world lessons from enterprise Copilot rollouts, agent builds, and SMB AI adoption — written for people who want the unvarnished version.
+      </div>
+    )}
+  </section>
+
+  <section class="section wrap" id="contact">
+    <div class="section-head">
+      <span class="eyebrow">Contact</span>
+      <h2>Talk it through</h2>
+    </div>
+    <div class="contact-grid">
+      <div>
+        <p class="lede" style="margin-bottom:18px">
+          The fastest path is a free 30-minute call. Come with a problem; leave with an honest read on whether AI can solve it.
+        </p>
+        <a href={BOOKING_URL} class="btn btn-primary">Book a call now</a>
+        <p style="margin-top:18px;font-size:0.9rem;color:var(--muted)">
+          Prefer to write? Use the <a href="./contact/" style="color:#0E7C8C;font-weight:600">contact form</a> and you'll hear back within one business day.
+        </p>
+      </div>
+      <form class="contact-card" data-form="contact" data-key={FORM_KEY}>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="message">What are you trying to solve?</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Send message</button>
+        <p class="form-status" data-status hidden></p>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Contact form -> Web3Forms
+  document.querySelectorAll<HTMLFormElement>('form[data-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = form.querySelector<HTMLElement>('[data-status]');
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (!status || !btn) return;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(Object.assign(
+            { subject: 'New inquiry from tayloredai.com', access_key: form.dataset.key ?? '' },
+            Object.fromEntries(new FormData(form)),
+          )),
+        });
+        const data = await res.json();
+        if (data.success) {
+          status.textContent = 'Thanks — your message is on its way. You will hear back within one business day.';
+          status.className = 'form-status ok';
+          form.reset();
+        } else {
+          throw new Error(data.message ?? 'Failed');
+        }
+      } catch {
+        status.textContent = 'Something went wrong sending your message. Please email info@tayloredai.com directly.';
+        status.className = 'form-status err';
+      }
+      status.hidden = false;
+      btn.disabled = false;
+      btn.textContent = 'Send message';
+    });
+  });
+</script>
