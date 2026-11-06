@@ -1,0 +1,100 @@
+---
+import Base from '../layouts/Base.astro';
+import { BOOKING_URL, FORM_KEY, SITE } from '../config';
+---
+<Base title="Contact — Taylored AI" description="Book a free 30-minute consult or send a message. Taylored AI responds within one business day.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../">Home</a> / Contact</div>
+      <h1>Talk it through</h1>
+      <p class="lede">
+        The fastest path is a free 30-minute call. Come with a problem; leave with an honest
+        read on whether AI can solve it. Prefer to write? The form works too.
+      </p>
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:12px">
+    <div class="detail-grid">
+      <div>
+        <div class="side-card" style="margin-bottom:20px">
+          <h3>Book a call</h3>
+          <p style="font-size:0.95rem;color:var(--ink-soft)">
+            Real-time scheduling through Microsoft Bookings — pick any open slot on my calendar.
+            30 minutes, free, no pitch.
+          </p>
+          <p style="margin-top:16px"><a class="btn btn-primary" href={BOOKING_URL}>Open my booking calendar</a></p>
+        </div>
+        <div class="side-card">
+          <h3>What to expect</h3>
+          <ul>
+            <li>A short conversation about your business, not a slide deck</li>
+            <li>An honest read — including "AI is not the answer here"</li>
+            <li>A clear next step, whether or not we work together</li>
+          </ul>
+          <p style="margin-top:14px;font-size:0.88rem;color:var(--muted)">
+            You can also email <a href={`mailto:${SITE.email}`} style="color:#0E7C8C;font-weight:600">{SITE.email}</a> directly.
+          </p>
+        </div>
+      </div>
+
+      <form class="contact-card" data-form="contact" data-key={FORM_KEY}>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="company">Company (optional)</label>
+          <input id="company" name="company" type="text" autocomplete="organization" />
+        </div>
+        <div class="field">
+          <label for="message">What are you trying to solve?</label>
+          <textarea id="message" name="message" rows="6" required placeholder="Tell me about the problem — what's slow, repetitive, or risky in your operation?"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Send message</button>
+        <p class="form-status" data-status hidden></p>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('form[data-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = form.querySelector<HTMLElement>('[data-status]');
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (!status || !btn) return;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(Object.assign(
+            { subject: 'New inquiry from tayloredai.com', access_key: form.dataset.key ?? '' },
+            Object.fromEntries(new FormData(form)),
+          )),
+        });
+        const data = await res.json();
+        if (data.success) {
+          status.textContent = 'Thanks — your message is on its way. You will hear back within one business day.';
+          status.className = 'form-status ok';
+          form.reset();
+        } else {
+          throw new Error(data.message ?? 'Failed');
+        }
+      } catch {
+        status.textContent = 'Something went wrong sending your message. Please email info@tayloredai.com directly.';
+        status.className = 'form-status err';
+      }
+      status.hidden = false;
+      btn.disabled = false;
+      btn.textContent = 'Send message';
+    });
+  });
+</script>

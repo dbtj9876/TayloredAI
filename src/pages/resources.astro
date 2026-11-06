@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import { FORM_KEY } from '../config';
+---
+<Base title="Resources — Taylored AI" description="Free, practical AI resources for SMBs: readiness checklists, governance templates, and prompting guides.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../">Home</a> / Resources</div>
+      <h1>Free resources</h1>
+      <p class="lede">
+        Practical, no-fluff tools we use in real engagements. Enter your email to download —
+        you will get the occasional useful insight, never spam.
+      </p>
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:12px">
+    <div class="download-item">
+      <div class="icon">✓</div>
+      <div style="flex:1">
+        <h3>SMB AI Readiness Checklist</h3>
+        <p style="font-size:0.93rem;color:var(--ink-soft)">The 20 questions we walk through in the first week of every engagement — data, processes, governance, and team readiness. Know where you stand before spending a dollar on AI.</p>
+        <div class="gate" data-gate data-file="ai-readiness-checklist.pdf">
+          <form data-form="download" data-key={FORM_KEY} data-file="ai-readiness-checklist.pdf" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+            <input type="email" name="email" placeholder="Work email" required style="flex:1;min-width:200px;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;font:inherit;background:var(--bg);color:var(--ink)" />
+            <button class="btn btn-primary" type="submit" style="padding:10px 18px;font-size:0.88rem">Get the checklist</button>
+          </form>
+          <p class="form-status" data-status hidden></p>
+          <p class="gate-note hidden" data-dl><a class="read" href="./downloads/ai-readiness-checklist.pdf" download>Download: SMB AI Readiness Checklist (PDF) →</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-note" style="margin-top:28px">
+      <strong>More coming soon:</strong> a one-page AI acceptable-use policy template, and an advanced prompting guide for business users.
+    </div>
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('form[data-form="download"]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = form.parentElement?.querySelector<HTMLElement>('[data-status]');
+      const dl = form.parentElement?.querySelector<HTMLElement>('[data-dl]');
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (!status || !dl || !btn) return;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(Object.assign(
+            { subject: 'Resource download — tayloredai.com', access_key: form.dataset.key ?? '' },
+            Object.fromEntries(new FormData(form)),
+          )),
+        });
+        const data = await res.json();
+        if (data.success) {
+          status.textContent = 'Almost there — your download link is below.';
+          status.className = 'form-status ok';
+          form.classList.add('hidden');
+          dl.classList.remove('hidden');
+        } else throw new Error();
+      } catch {
+        status.textContent = 'Something went wrong — email info@tayloredai.com and we will send it directly.';
+        status.className = 'form-status err';
+      }
+      status.hidden = false;
+      btn.disabled = false;
+      btn.textContent = 'Get the checklist';
+    });
+  });
+</script>

@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<Base title="Insights — Taylored AI" description="Real-world lessons from enterprise Copilot rollouts, agent builds, and SMB AI adoption.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../../">Home</a> / Insights</div>
+      <h1>Lessons from the field</h1>
+      <p class="lede">
+        What enterprise AI programs get right, what SMBs should copy, and what everybody gets wrong —
+        written for people who want the unvarnished version.
+      </p>
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:12px">
+    {posts.length > 0 ? (
+      <div class="cards-grid">
+        {posts.map((p) => (
+          <a class="card" href={`../${p.id}/`}>
+            <span class="meta">{p.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <h3>{p.data.title}</h3>
+            <p>{p.data.description}</p>
+            <span class="read">Read article →</span>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div class="insight-note">
+        <strong>Insights is coming soon.</strong> Real-world lessons from enterprise Copilot rollouts, agent builds, and SMB AI adoption.
+      </div>
+    )}
+  </section>
+</Base>

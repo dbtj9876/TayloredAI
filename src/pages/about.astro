@@ -1,0 +1,89 @@
+---
+import Base from '../layouts/Base.astro';
+import { BOOKING_URL } from '../config';
+---
+<Base title="About — Taylored AI" description="The person behind Taylored AI: enterprise Copilot program manager and certified AI Solution Architect right-sizing enterprise AI playbooks for SMBs.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../">Home</a> / About</div>
+      <h1>Enterprise AI discipline. <span class="grad-text">Small-business speed.</span></h1>
+      <p class="lede">
+        Taylored AI exists for a simple reason: the best AI practices in the world are being
+        written inside large enterprises — and almost none of it is reaching the businesses
+        that could benefit most.
+      </p>
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:12px">
+    <div class="detail-grid">
+      <div class="prose">
+        <h2>By day, I run enterprise AI programs</h2>
+        <p>
+          I lead a Copilot technical program at a Fortune 500 company — building the standards,
+          governance, and rollout processes for how thousands of employees use AI and agents
+          safely and effectively. I design agent intake and review, acceptable-use policy,
+          security and compliance gates, and the training that makes all of it stick.
+        </p>
+        <p>
+          I am also a <strong>certified AI Solution Architect</strong>. That combination —
+          deep Microsoft Copilot expertise plus broader solution architecture — means I am not
+          limited to one vendor's playbook. If the right answer is a different tool, or no tool
+          at all, you will hear that.
+        </p>
+
+        <h2>Why SMBs and small enterprises</h2>
+        <p>
+          Enterprise AI programs move at enterprise speed: committees, pilots that run for
+          quarters, governance built for ten thousand users. Meanwhile, a 20-person company can
+          decide on Monday and have something working by Friday — with the same care about data
+          and security, at a fraction of the weight.
+        </p>
+        <p>
+          That is the gap Taylored AI closes: enterprise-grade thinking, right-sized for
+          businesses that do not have a CIO, a security team, or a six-figure consulting budget.
+        </p>
+
+        <h2>How I work</h2>
+        <ul>
+          <li><strong>Business first.</strong> We start with your numbers and your friction, not with a tool.</li>
+          <li><strong>Honest scoping.</strong> If AI is not the answer, I will tell you before you spend a dollar.</li>
+          <li><strong>Fixed scope, fixed price.</strong> No open-ended retainers or surprise invoices.</li>
+          <li><strong>You own everything.</strong> Code, prompts, documentation, processes — no lock-in.</li>
+        </ul>
+
+        <div class="assess" style="margin-top:40px;padding:34px">
+          <div>
+            <h2 style="font-size:1.4rem">Let's talk about your business</h2>
+            <p>A free 30-minute call. Come with a problem, leave with an honest read.</p>
+          </div>
+          <a href={BOOKING_URL} class="btn btn-light">Book a call</a>
+        </div>
+      </div>
+
+      <aside class="detail-side">
+        <div class="side-card">
+          <img src="../logo.png" alt="Taylored AI logo" style="width:72px;height:72px;border-radius:14px;margin-bottom:14px" />
+          <h3>At a glance</h3>
+          <ul>
+            <li>Enterprise Copilot program manager</li>
+            <li>Certified AI Solution Architect</li>
+            <li>Agent governance & security review experience</li>
+            <li>Focus: SMBs & small enterprises</li>
+            <li>Based in North Texas, working everywhere</li>
+          </ul>
+        </div>
+        <div class="side-card">
+          <h3>Specialties</h3>
+          <ul>
+            <li>Microsoft Copilot & M365</li>
+            <li>Agentic AI & automation</li>
+            <li>AI governance & risk</li>
+            <li>Process audits</li>
+            <li>Team enablement & training</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,64 @@
+---
+import { BOOKING_URL, SITE } from '../config';
+import '../styles/global.css';
+const { title = 'Taylored AI — Practical AI Consulting for SMBs', description = 'AI consulting for small and mid-sized businesses: governance, agentic AI, process audits, and team education.' } = Astro.props;
+const path = Astro.url.pathname;
+// Relative URL prefix so assets/links work at any depth and on any static host
+const depth = path.replace(/\/index\.html$/, '').replace(/\/+$/, '').split('/').length - 1;
+const prefix = depth === 0 ? './' : '../'.repeat(depth);
+const isActive = (href: string) =>
+  href === '/' ? path === '/' || path === '/index.html' : path.startsWith(href);
+const navItems = [
+  { href: '/services/', label: 'Services' },
+  { href: '/assessment/', label: 'AI Assessment' },
+  { href: '/insights/', label: 'Insights' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
+];
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href={`${prefix}logo.png`} />
+  <link rel="canonical" href={new URL(path, SITE.url).href} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner wrap">
+      <a href={`${prefix}`} class="brand"><img src={`${prefix}logo.png`} alt="Taylored AI logo" /> Taylored AI</a>
+      <div class="nav-links">
+        {navItems.map((n) => (
+          <a href={`${prefix}${n.href.replace(/^\//, '')}`} class={isActive(n.href) ? 'active' : ''}>{n.label}</a>
+        ))}
+        <a href={BOOKING_URL} class="btn btn-primary">Book a call</a>
+      </div>
+    </div>
+  </nav>
+
+  <slot />
+
+  <footer>
+    <div class="wrap foot-grid">
+      <div class="foot-brand"><img src={`${prefix}logo.png`} alt="Taylored AI logo" /> Taylored AI</div>
+      <div class="foot-links">
+        <a href={`${prefix}services/`}>Services</a>
+        <a href={`${prefix}assessment/`}>AI Assessment</a>
+        <a href={`${prefix}insights/`}>Insights</a>
+        <a href={`${prefix}case-studies/`}>Case Studies</a>
+        <a href={`${prefix}resources/`}>Resources</a>
+        <a href={`${prefix}about/`}>About</a>
+        <a href={`${prefix}contact/`}>Contact</a>
+        <a href={BOOKING_URL}>Book a call</a>
+      </div>
+    </div>
+    <div class="wrap foot-legal">© 2026 Taylored AI. All rights reserved.</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const cases = (await getCollection('caseStudies', ({ data }) => !data.draft))
+  .sort((a, b) => (a.data.client < b.data.client ? -1 : 1));
+---
+<Base title="Case Studies — Taylored AI" description="How Taylored AI applies governance, agents, audits, and education to real business problems.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../../">Home</a> / Case Studies</div>
+      <h1>AI in the real world</h1>
+      <p class="lede">
+        Real engagements, described honestly — including what was hard. Details are shared
+        only with client permission.
+      </p>
+    </div>
+  </header>
+
+  <section class="section wrap" style="padding-top:12px">
+    {cases.length > 0 ? (
+      <div class="cards-grid">
+        {cases.map((c) => (
+          <a class="card" href={`../${c.id}/`}>
+            <span class="meta">{c.data.industry}</span>
+            <h3>{c.data.client}</h3>
+            <p>{c.data.summary}</p>
+            <span class="read">Read the case →</span>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div class="insight-note">
+        <strong>Case studies are on the way.</strong> As engagements wrap, we will publish what we did,
+        what broke, and what it saved — with client permission.
+      </div>
+    )}
+  </section>
+</Base>

@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import { services } from '../../data/services';
+import { BOOKING_URL } from '../../config';
+---
+<Base title="Services — Taylored AI" description="AI governance, agentic AI solutions, process audits, and AI education for small and mid-sized businesses.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../">Home</a> / Services</div>
+      <h1>Four ways we put AI to work</h1>
+      <p class="lede">
+        Every engagement starts with your business problem — never with a tool looking for one.
+        Each service can stand alone or combine into a full AI adoption program.
+      </p>
+    </div>
+  </header>
+
+  <section class="section wrap">
+    <div class="cards-grid">
+      {services.map((s) => (
+        <article class="card" style="padding:30px">
+          <span class="meta">{s.tag}</span>
+          <h3>{s.title}</h3>
+          <p>{s.intro.slice(0, 150)}…</p>
+          <a class="read" href={`../${s.slug}/`}>Explore {s.title} →</a>
+        </article>
+      ))}
+    </div>
+
+    <div class="assess" style="margin-top:44px">
+      <div>
+        <h2>Not sure where to start?</h2>
+        <p>Take the free 5-minute AI readiness assessment, or book a call and we will figure it out together.</p>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="../assessment/" class="btn btn-light">Take the assessment</a>
+        <a href={BOOKING_URL} class="btn btn-light" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.35)">Book a call</a>
+      </div>
+    </div>
+  </section>
+</Base>
