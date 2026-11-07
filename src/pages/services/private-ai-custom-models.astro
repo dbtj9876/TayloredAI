@@ -1,0 +1,147 @@
+---
+import Base from '../../layouts/Base.astro';
+import { services } from '../../data/services';
+
+const questions = [
+  {
+    q: 'What does “trained on company data” mean?',
+    a: 'We start with an existing open-source model and assess whether fine-tuning it on approved company examples will help it perform your specific tasks. This is adaptation, not training a foundation model from scratch. Your data must be suitable, authorized for use, and prepared for the agreed purpose.',
+  },
+  {
+    q: 'Is fine-tuning the same as connecting our documents?',
+    a: 'No. Fine-tuning adapts model behavior using training examples. Document retrieval supplies relevant source material when a question is asked. We scope the right combination for your use case rather than promising that fine-tuning alone will turn a model into a reliable company knowledge base.',
+  },
+  {
+    q: 'Does all of our data stay on our hardware?',
+    a: 'Local deployment is the starting point. If keeping training and inference entirely on-site is a requirement, we design and document that boundary explicitly, including external tools, telemetry, backups, and integrations. We do not assume a system is fully offline just because the model runs locally.',
+  },
+  {
+    q: 'Do we need to buy new hardware?',
+    a: 'Not necessarily. We assess existing equipment against the model, workload, response-time goals, and number of users. If upgrades are needed, you receive a hardware recommendation and cost estimate before committing. Hardware, licensing, and ongoing support are scoped separately.',
+  },
+  {
+    q: 'How do we know it works?',
+    a: 'We agree on representative business tasks and acceptance criteria before development. The pilot is evaluated for usefulness, accuracy, response time, and failure cases, with human review wherever a mistake could affect a customer or business decision.',
+  },
+];
+---
+<Base
+  title="Private AI & Custom Models — Taylored AI"
+  description="Open-source AI models adapted with your company data and deployed on local hardware. Practical model fine-tuning, hardware planning, governance, and team education for SMBs."
+>
+  <main>
+    <header class="page-hero">
+      <div class="wrap">
+        <div class="breadcrumb"><a href="../../">Home</a> / <a href="../">Services</a> / Private AI &amp; Custom Models</div>
+        <span class="eyebrow">Agentic AI Solutions / Private AI</span>
+        <h1>Private AI &amp; Custom Models</h1>
+        <p class="private-tagline">Your business knowledge. Your hardware. AI tailored to both.</p>
+        <p class="lede">
+          Your business has specialized knowledge, processes, and requirements. Your AI should
+          reflect them. Taylored AI adapts open-source models using your company’s data and
+          deploys them on local hardware you control, built around a specific business need.
+        </p>
+        <a href="../../contact/" class="btn btn-primary private-cta">Discuss your private AI project</a>
+      </div>
+    </header>
+
+    <section class="section wrap" style="padding-top:12px" aria-label="Private AI service details">
+      <div class="detail-grid">
+        <div class="prose">
+          <h2>Start with the work, not the model</h2>
+          <p>
+            Maybe your team needs to classify specialized documents, draft in your company’s
+            format, or work with internal knowledge without sending every request to a hosted
+            AI service. We define the task and what a good result looks like before recommending
+            a model, training approach, or hardware purchase.
+          </p>
+          <p>
+            Local AI is an option to evaluate, not a default answer to every problem. Discovery
+            establishes whether a company-specific model is practical for your data, budget,
+            and team.
+          </p>
+
+          <h2>What we build</h2>
+          <ul>
+            <li><strong>Company-specific models:</strong> fine-tune an appropriate open-source model on approved examples of your tasks, terminology, and desired outputs.</li>
+            <li><strong>Local deployment:</strong> configure the model and its user experience on client-controlled workstations or servers, sized for the agreed workload.</li>
+            <li><strong>Knowledge and workflow connections:</strong> add document retrieval or internal integrations where needed, with defined access permissions.</li>
+            <li><strong>Practical safeguards:</strong> evaluate outputs, establish human review points, and document the system’s limitations.</li>
+          </ul>
+
+          <h2>Four pillars. One business-specific solution.</h2>
+          <div class="private-pillars">
+            <a href="../audits/"><strong>Process audits</strong><span>Find the right use case and define success.</span></a>
+            <a href="../governance/"><strong>AI governance</strong><span>Set data permissions, boundaries, and review rules.</span></a>
+            <a href="../agents/"><strong>Agentic AI solutions</strong><span>Adapt the model and build the local solution.</span></a>
+            <a href="../education/"><strong>AI education</strong><span>Prepare your team to use and maintain it.</span></a>
+          </div>
+
+          <h2>From feasibility to handover</h2>
+          <ol>
+            <li><strong>Assess:</strong> review the workflow, data rights and quality, privacy requirements, and available hardware.</li>
+            <li><strong>Scope:</strong> recommend the model, fine-tuning and retrieval approach, infrastructure, and pilot acceptance criteria. Check commercial-use license terms.</li>
+            <li><strong>Build and evaluate:</strong> prepare approved data, adapt the model, deploy locally, and test against representative tasks and failure cases.</li>
+            <li><strong>Enable:</strong> train your team and document operation, updates, monitoring, and support responsibilities.</li>
+          </ol>
+
+          <h2>What you receive</h2>
+          <ul>
+            <li>A feasibility assessment and scoped implementation plan.</li>
+            <li>A model and hardware recommendation with licensing and cost considerations.</li>
+            <li>A local pilot, with fine-tuning where agreed and technically justified.</li>
+            <li>Evaluation results, known limitations, and data-handling documentation.</li>
+            <li>A runbook and team handover, with ownership and third-party license terms clearly documented.</li>
+          </ul>
+
+          <h2>Common questions</h2>
+          <div class="faq">
+            {questions.map((item) => (
+              <details>
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+
+          <div class="assess" style="margin-top:40px;padding:34px">
+            <div>
+              <h2 style="font-size:1.4rem">Have a use case in mind?</h2>
+              <p>Tell us what your team needs to do, what data you have, and where the AI needs to run. We’ll start with feasibility, not a hardware shopping list.</p>
+            </div>
+            <a href="../../contact/" class="btn btn-light">Talk about your project</a>
+          </div>
+        </div>
+
+        <aside class="detail-side" aria-label="Related services">
+          <div class="side-card">
+            <h3>Built for your business</h3>
+            <p class="private-side-copy">Open-source models, company-specific adaptation, and deployment on hardware you control. Scope follows the business need.</p>
+            <p class="private-side-note">Part of our <a href="../agents/">Agentic AI Solutions</a> pillar.</p>
+          </div>
+          <div class="side-card">
+            <h3>Explore the four pillars</h3>
+            <ul>
+              {services.map((s) => <li><a href={`../${s.slug}/`}>{s.title}</a></li>)}
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .private-tagline { font-weight: 700; color: #0b6e5d; margin-bottom: 16px; }
+  .private-cta { margin-top: 24px; }
+  .private-pillars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 22px 0 32px; }
+  .private-pillars a { display: block; padding: 16px 18px; border-left: 3px solid var(--teal); background: var(--surface); }
+  .private-pillars a:hover { background: #edf9f3; }
+  .private-pillars strong, .private-pillars span { display: block; }
+  .private-pillars span { color: var(--ink-soft); margin-top: 6px; }
+  .private-side-copy { color: var(--ink-soft); }
+  .private-side-note { margin-top: 16px; color: #0b6e5d; }
+  .prose .assess p { color: #b9cbe0; }
+  a:focus-visible { outline: 3px solid #0b6e5d; outline-offset: 4px; }
+  @media (max-width: 600px) { .private-pillars { grid-template-columns: 1fr; } }
+</style>
