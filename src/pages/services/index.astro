@@ -22,9 +22,16 @@ import { BOOKING_URL } from '../../config';
           <span class="meta">{s.tag}</span>
           <h3>{s.title}</h3>
           <p>{s.intro.slice(0, 150)}…</p>
-          <a class="read" href={`../${s.slug}/`}>Explore {s.title} →</a>
+          <a class="read" href={`./${s.slug}/`}>Explore {s.title} →</a>
         </article>
       ))}
+    </div>
+
+    <div class="side-card" style="margin-top:32px">
+      <span class="eyebrow">Within our Agentic AI Solutions pillar</span>
+      <h2>Private AI &amp; Custom Models</h2>
+      <p style="margin-top:14px;color:var(--ink-soft)">Open-source models adapted with your company’s data and deployed on local hardware you control. From feasibility and fine-tuning to governance and team handover, the solution starts with your business need.</p>
+      <p style="margin-top:18px"><a href="./private-ai-custom-models/" class="btn btn-primary">Explore private AI</a></p>
     </div>
 
     <div class="assess" style="margin-top:44px">
