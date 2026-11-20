@@ -247,7 +247,7 @@ const demo = import.meta.env.PUBLIC_ASSESSMENT_DEMO === '1';
         ${recos.map((r, i) => `<div class="reco"><span class="n">${i + 1}</span><span>${r}</span></div>`).join('')}
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;justify-content:center">
           <a href="${bookingUrl}" class="btn btn-primary">Book a free consult</a>
-          <a href="../services/" class="btn btn-ghost">Explore the services</a>
+          <a href="${demo ? '../services/index.html' : '../services/'}" class="btn btn-ghost">Explore the services</a>
         </div>`;
       box.querySelector<HTMLElement>('.result-band')?.focus({ preventScroll: true });
     }
