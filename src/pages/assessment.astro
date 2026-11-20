@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { BOOKING_URL, FORM_KEY } from '../config';
+import { BOOKING_URL } from '../config';
+const demo = import.meta.env.PUBLIC_ASSESSMENT_DEMO === '1';
 ---
 <Base title="AI Readiness Assessment — Taylored AI" description="12 quick questions. Your AI Readiness Score instantly, with a plain-English read on your strongest opportunity.">
   <header class="page-hero">
@@ -8,18 +9,19 @@ import { BOOKING_URL, FORM_KEY } from '../config';
       <div class="breadcrumb"><a href="../">Home</a> / AI Assessment</div>
       <h1>Where should AI fit <span class="grad-text">in your business?</span></h1>
       <p class="lede">
-        12 questions, about 5 minutes. You will see your score and recommendations immediately —
-        no email wall. {FORM_KEY && 'You can also request a copy at the end.'}
+        12 questions, about 5 minutes. Enter your email at the end to see your score and recommendations right away.
       </p>
     </div>
   </header>
 
   <section class="section wrap" style="padding-top:16px">
-    <div class="quiz-box" id="quiz" data-booking-url={BOOKING_URL} data-form-key={FORM_KEY}></div>
+    <div class="quiz-box" id="quiz" data-booking-url={BOOKING_URL} data-demo={demo ? '1' : '0'}></div>
   </section>
 </Base>
 
 <script>
+  import { ASSESSMENT_VERSION, BOTTLENECKS, scoreAssessment } from '../assessment.mjs';
+
   (function () {
     const QUESTIONS = [
       {
@@ -68,18 +70,14 @@ import { BOOKING_URL, FORM_KEY } from '../config';
       },
       {
         q: 'What is the single biggest bottleneck in your business today?',
-        opts: ['Manual admin work', 'Slow response to customers', 'Data and insight gaps', 'Inconsistent quality / team adoption'],
+        opts: BOTTLENECKS,
       },
     ];
-    // Last question is informational — used to tailor the recommendation, not scored.
-    const SCORED = 11;
-    const MAX = SCORED * 3;
-
-    const BANDS = [
-      { min: 0.72, name: 'AI-Ready', sub: 'You have the foundations — processes, data, and buy-in. AI will pay off fastest for you.' },
-      { min: 0.42, name: 'Emerging', sub: 'Real opportunities exist, but a few foundations need work first. Quick wins are still within reach.' },
-      { min: 0, name: 'Foundations First', sub: 'The biggest wins will come from getting processes and data AI-ready — then automating.' },
-    ];
+    const BAND_DETAIL = {
+      'AI-Ready': 'You have the foundations — processes, data, and buy-in. AI will pay off fastest for you.',
+      'Emerging': 'Real opportunities exist, but a few foundations need work first. Quick wins are still within reach.',
+      'Foundations First': 'The biggest wins will come from getting processes and data AI-ready — then automating.',
+    };
 
     const RECO = {
       'AI-Ready': [
@@ -105,12 +103,15 @@ import { BOOKING_URL, FORM_KEY } from '../config';
       'Inconsistent quality / team adoption': 'Quality and adoption issues usually respond best to a combination of education and process design before heavy automation.',
     };
 
-    const box = document.getElementById('quiz');
-    if (!box) return;
+    const quiz = document.getElementById('quiz');
+    if (!quiz) return;
+    const box = quiz;
     const bookingUrl = box.dataset.bookingUrl ?? '';
-    const formKey = box.dataset.formKey ?? '';
+    const demo = box.dataset.demo === '1';
     let step = 0;
-    const answers = new Array(QUESTIONS.length).fill(null);
+    let emailDraft = '';
+    let submissionId: string | undefined;
+    const answers: number[] = [];
 
     function renderStart() {
       box.innerHTML = `
@@ -119,9 +120,9 @@ import { BOOKING_URL, FORM_KEY } from '../config';
           <h2 style="font-size:1.6rem;margin-bottom:10px">AI Readiness Assessment</h2>
           <p style="color:var(--muted);max-width:420px;margin:0 auto 26px">12 questions · about 5 minutes · instant score</p>
           <button class="btn btn-primary" id="start">Start the assessment</button>
-          <p style="font-size:0.82rem;color:var(--muted);margin-top:16px">No email required to see your results.</p>
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:16px">${demo ? 'Preview only. No data is saved.' : 'One email field at the end. No inbox wait.'}</p>
         </div>`;
-      document.getElementById('start').addEventListener('click', () => { step = 0; renderQ(); });
+      box.querySelector('#start')?.addEventListener('click', () => { step = 0; renderQ(); });
     }
 
     function renderQ() {
@@ -130,7 +131,7 @@ import { BOOKING_URL, FORM_KEY } from '../config';
       box.innerHTML = `
         <div class="quiz-progress"><div class="bar" style="width:${pct}%"></div></div>
         <div class="quiz-qnum">Question ${step + 1} of ${QUESTIONS.length}</div>
-        <div class="quiz-question">${q.q}</div>
+        <h2 class="quiz-question" tabindex="-1">${q.q}</h2>
         <div class="quiz-options">
           ${q.opts.map((o, i) => `<button class="quiz-opt" data-i="${i}">${o}</button>`).join('')}
         </div>
@@ -138,32 +139,108 @@ import { BOOKING_URL, FORM_KEY } from '../config';
           <button class="quiz-back" id="back" ${step === 0 ? 'disabled' : ''}>← Back</button>
           <span style="font-size:0.8rem;color:var(--muted)">${Math.round((step / QUESTIONS.length) * 100)}% complete</span>
         </div>`;
-      box.querySelectorAll('.quiz-opt').forEach((btn) => {
+      box.querySelector<HTMLElement>('.quiz-question')?.focus({ preventScroll: true });
+      box.querySelectorAll<HTMLButtonElement>('.quiz-opt').forEach((btn) => {
         btn.addEventListener('click', () => {
-          answers[step] = (btn as HTMLElement).dataset.i;
+          answers[step] = Number(btn.dataset.i);
           step += 1;
-          if (step < QUESTIONS.length) renderQ(); else renderResult();
+          if (step < QUESTIONS.length) renderQ(); else renderEmail();
         });
       });
       const back = document.getElementById('back');
       if (back) back.addEventListener('click', () => { if (step > 0) { step -= 1; renderQ(); } });
     }
 
-    function renderResult() {
-      const scored = answers.slice(0, SCORED);
-      const total = scored.reduce((sum, a) => sum + (a === null ? 0 : 3 - Number(a)), 0);
-      // Higher points = earlier options = stronger readiness. total max = 33.
-      const pctScore = Math.round((total / MAX) * 100);
-      const band = BANDS.find((b) => pctScore >= b.min * 100) ?? BANDS[BANDS.length - 1];
-      const bottleneck = QUESTIONS[QUESTIONS.length - 1].opts[Number(answers[QUESTIONS.length - 1] ?? 0)] ?? '';
-      const recos = RECO[band.name as keyof typeof RECO];
+    function renderEmail() {
+      box.innerHTML = `
+        <div class="quiz-progress" aria-hidden="true"><div class="bar" style="width:100%"></div></div>
+        <div class="quiz-qnum">12 of 12 answered</div>
+        <h2 class="quiz-question" id="email-heading" tabindex="-1">Your results are ready</h2>
+        <form id="assessment-email" class="quiz-email" method="post" action="../api/assessment">
+          <div class="field">
+            <label for="assessment-address">Email address</label>
+            <input id="assessment-address" name="email" type="email" autocomplete="email"
+              placeholder="you@company.com" maxlength="254" required aria-describedby="assessment-notice"
+              ${demo ? 'readonly value="demo@example.com"' : ''} />
+          </div>
+          <div hidden><label>Leave this field blank <input name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <p class="quiz-email-note" id="assessment-notice">${demo
+            ? 'Preview only. This example address is not sent or saved.'
+            : 'Taylored AI saves your email with your results in a private archive and may follow up about your assessment. Your score appears here, not in your inbox.'}</p>
+          <div class="quiz-email-actions">
+            <button class="btn btn-primary" type="submit">See my results</button>
+            <button class="quiz-back" type="button">← Back</button>
+          </div>
+          <p class="form-status" role="status" aria-live="polite"></p>
+        </form>`;
+
+      const form = box.querySelector<HTMLFormElement>('#assessment-email')!;
+      const input = form.querySelector<HTMLInputElement>('input[name="email"]')!;
+      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const back = form.querySelector<HTMLButtonElement>('button[type="button"]')!;
+      const status = form.querySelector<HTMLElement>('[role="status"]')!;
+      if (!demo) input.value = emailDraft;
+      box.querySelector<HTMLElement>('#email-heading')?.focus({ preventScroll: true });
+
+      back.addEventListener('click', () => {
+        emailDraft = input.value;
+        step = QUESTIONS.length - 1;
+        renderQ();
+      });
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (button.disabled || !form.reportValidity()) return;
+        if (demo) { renderResult(scoreAssessment(answers)); return; }
+
+        const fields = new FormData(form);
+        emailDraft = input.value.trim();
+        button.disabled = back.disabled = true;
+        input.readOnly = true;
+        button.textContent = 'Saving…';
+        status.className = 'form-status';
+        status.textContent = 'Saving your assessment.';
+        try {
+          submissionId ??= crypto.randomUUID();
+          const response = await fetch('../api/assessment', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: submissionId, version: ASSESSMENT_VERSION, email: emailDraft,
+              answers, website: fields.get('website'),
+            }),
+          });
+          if (response.ok) {
+            renderResult(await response.json());
+            return;
+          }
+          const data = await response.json().catch(() => ({}));
+          status.textContent = data.error === 'email'
+            ? 'Enter a valid email address, then try again.'
+            : response.status === 429
+              ? 'Please wait a minute and try again. Your answers are still here.'
+              : response.status === 409
+                ? 'The assessment has changed. Reload the page to take the current version.'
+                : 'We couldn’t save your assessment. Your answers are still here. Please try again.';
+        } catch {
+          status.textContent = 'We couldn’t save your assessment. Your answers are still here. Please try again.';
+        } finally {
+          status.className = 'form-status err';
+          button.textContent = 'See my results';
+          input.readOnly = button.disabled = back.disabled = false;
+        }
+      });
+    }
+
+    function renderResult({ score, band, bottleneck }: ReturnType<typeof scoreAssessment>) {
+      const recos = RECO[band];
 
       box.innerHTML = `
         <div class="quiz-progress"><div class="bar" style="width:100%"></div></div>
         <div style="text-align:center">
-          <div class="score-ring"><div class="val">${pctScore}<small>/100</small></div></div>
-          <div class="result-band">${band.name}</div>
-          <div class="result-sub">${band.sub}</div>
+          <div class="score-ring"><div class="val">${Number(score)}<small>/100</small></div></div>
+          <h2 class="result-band" tabindex="-1">${band}</h2>
+          <div class="result-sub">${BAND_DETAIL[band]}</div>
         </div>
         ${bottleneck ? `<div class="reco"><span class="n">•</span><span><strong>Your bottleneck — ${bottleneck}.</strong> ${BOTTLENECK_NOTE[bottleneck as keyof typeof BOTTLENECK_NOTE]}</span></div>` : ''}
         <h3 style="margin:24px 0 14px">Your recommended next steps</h3>
@@ -171,45 +248,8 @@ import { BOOKING_URL, FORM_KEY } from '../config';
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;justify-content:center">
           <a href="${bookingUrl}" class="btn btn-primary">Book a free consult</a>
           <a href="../services/" class="btn btn-ghost">Explore the services</a>
-        </div>
-        ${formKey ? `<div style="margin-top:32px;padding-top:26px;border-top:1px solid var(--line)">
-          <p style="font-size:0.9rem;color:var(--ink-soft);margin-bottom:14px"><strong>Want a copy of your results?</strong> Enter your email to request a copy from Taylored AI.</p>
-          <form id="result-form" style="display:flex;gap:10px;flex-wrap:wrap">
-            <input type="email" name="email" placeholder="you@company.com" required style="flex:1;min-width:220px;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font:inherit;background:var(--bg);color:var(--ink)" />
-            <button class="btn btn-primary" type="submit">Send my results</button>
-          </form>
-          <p class="form-status" id="result-status" hidden></p>
-        </div>` : ''}`;
-
-      const form = document.getElementById('result-form') as HTMLFormElement | null;
-      form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const status = document.getElementById('result-status') as HTMLElement | null;
-        if (!status) return;
-        const email = new FormData(form).get('email');
-        try {
-          const res = await fetch('https://api.web3forms.com/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({
-              subject: 'Assessment results request — tayloredai.com',
-              access_key: formKey,
-              email: email,
-              message: `AI Readiness Assessment results:\nScore: ${pctScore}/100\nBand: ${band.name}\nBottleneck: ${bottleneck}\nRecommended next steps:\n${recos.map((r, i) => `${i + 1}. ${r}`).join('\n')}`,
-            }),
-          });
-          const data = await res.json();
-          if (data.success) {
-            status.textContent = 'Your request was sent to Taylored AI.';
-            status.className = 'form-status ok';
-            form.reset();
-          } else throw new Error();
-        } catch {
-          status.textContent = 'Could not send right now — email info@tayloredai.com and you will get the same results.';
-          status.className = 'form-status err';
-        }
-        status.hidden = false;
-      });
+        </div>`;
+      box.querySelector<HTMLElement>('.result-band')?.focus({ preventScroll: true });
     }
 
     renderStart();
