@@ -9,17 +9,17 @@ import { BOOKING_URL, FORM_KEY } from '../config';
       <h1>Where should AI fit <span class="grad-text">in your business?</span></h1>
       <p class="lede">
         12 questions, about 5 minutes. You will see your score and recommendations immediately —
-        no email wall. If you want a copy of your results, there is an optional spot at the end.
+        no email wall. {FORM_KEY && 'You can also request a copy at the end.'}
       </p>
     </div>
   </header>
 
   <section class="section wrap" style="padding-top:16px">
-    <div class="quiz-box" id="quiz"></div>
+    <div class="quiz-box" id="quiz" data-booking-url={BOOKING_URL} data-form-key={FORM_KEY}></div>
   </section>
 </Base>
 
-<script is:inline>
+<script>
   (function () {
     const QUESTIONS = [
       {
@@ -107,6 +107,8 @@ import { BOOKING_URL, FORM_KEY } from '../config';
 
     const box = document.getElementById('quiz');
     if (!box) return;
+    const bookingUrl = box.dataset.bookingUrl ?? '';
+    const formKey = box.dataset.formKey ?? '';
     let step = 0;
     const answers = new Array(QUESTIONS.length).fill(null);
 
@@ -167,17 +169,17 @@ import { BOOKING_URL, FORM_KEY } from '../config';
         <h3 style="margin:24px 0 14px">Your recommended next steps</h3>
         ${recos.map((r, i) => `<div class="reco"><span class="n">${i + 1}</span><span>${r}</span></div>`).join('')}
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;justify-content:center">
-          <a href="${BOOKING_URL}" class="btn btn-primary">Book a free consult</a>
+          <a href="${bookingUrl}" class="btn btn-primary">Book a free consult</a>
           <a href="../services/" class="btn btn-ghost">Explore the services</a>
         </div>
-        <div style="margin-top:32px;padding-top:26px;border-top:1px solid var(--line)">
-          <p style="font-size:0.9rem;color:var(--ink-soft);margin-bottom:14px"><strong>Want a copy of your results?</strong> Enter your email and I will send your score, band, and recommended next steps — plus a one-page breakdown. No follow-up spam; you decide if we ever talk.</p>
+        ${formKey ? `<div style="margin-top:32px;padding-top:26px;border-top:1px solid var(--line)">
+          <p style="font-size:0.9rem;color:var(--ink-soft);margin-bottom:14px"><strong>Want a copy of your results?</strong> Enter your email to request a copy from Taylored AI.</p>
           <form id="result-form" style="display:flex;gap:10px;flex-wrap:wrap">
             <input type="email" name="email" placeholder="you@company.com" required style="flex:1;min-width:220px;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;font:inherit;background:var(--bg);color:var(--ink)" />
             <button class="btn btn-primary" type="submit">Send my results</button>
           </form>
           <p class="form-status" id="result-status" hidden></p>
-        </div>`;
+        </div>` : ''}`;
 
       const form = document.getElementById('result-form') as HTMLFormElement | null;
       form?.addEventListener('submit', async (e) => {
@@ -191,14 +193,14 @@ import { BOOKING_URL, FORM_KEY } from '../config';
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({
               subject: 'Assessment results request — tayloredai.com',
-              access_key: ${JSON.stringify(FORM_KEY)},
+              access_key: formKey,
               email: email,
               message: `AI Readiness Assessment results:\nScore: ${pctScore}/100\nBand: ${band.name}\nBottleneck: ${bottleneck}\nRecommended next steps:\n${recos.map((r, i) => `${i + 1}. ${r}`).join('\n')}`,
             }),
           });
           const data = await res.json();
           if (data.success) {
-            status.textContent = 'On its way — check your inbox in a few minutes.';
+            status.textContent = 'Your request was sent to Taylored AI.';
             status.className = 'form-status ok';
             form.reset();
           } else throw new Error();
