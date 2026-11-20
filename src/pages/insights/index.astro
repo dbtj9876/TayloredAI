@@ -8,7 +8,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 <Base title="Insights — Taylored AI" description="Real-world lessons from enterprise Copilot rollouts, agent builds, and SMB AI adoption.">
   <header class="page-hero">
     <div class="wrap">
-      <div class="breadcrumb"><a href="../../">Home</a> / Insights</div>
+      <div class="breadcrumb"><a href="../">Home</a> / Insights</div>
       <h1>Lessons from the field</h1>
       <p class="lede">
         What enterprise AI programs get right, what SMBs should copy, and what everybody gets wrong —
@@ -21,7 +21,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     {posts.length > 0 ? (
       <div class="cards-grid">
         {posts.map((p) => (
-          <a class="card" href={`../${p.id}/`}>
+          <a class="card" href={`./${p.id}/`}>
             <span class="meta">{p.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
             <h3>{p.data.title}</h3>
             <p>{p.data.description}</p>
