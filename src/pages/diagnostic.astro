@@ -131,7 +131,7 @@ const demo = import.meta.env.PUBLIC_ASSESSMENT_DEMO === '1';
         heading.textContent = step.question;
         intro.textContent = stage === 1 && ['microsoft', 'google'].includes(profile.tools)
           ? `Think about what this workflow touches in ${profile.tools === 'microsoft' ? 'Microsoft 365' : 'Google Workspace'}.`
-          : stage === 2 && ['restricted', 'unknown'].includes(profile.data)
+          : stage === 2 && ['restricted', 'private', 'unknown'].includes(profile.data)
             ? 'Think about where the process slows down, without including any details from the records.'
             : stage === 3 && profile.bottleneck !== 'unknown'
               ? `For ${STEPS[2].options[profile.bottleneck as keyof typeof STEPS[2]['options']]?.toLowerCase() ?? 'that workflow'}, what would improve first?`

@@ -57,7 +57,9 @@ Archive QA: Four automated tests and the Wrangler dry-run deployment passed. Des
 
 Verification for the first version:
 
-- Node 22: all seven tests passed, including the existing quiz tests. The production and preview Astro builds and the Wrangler dry run passed.
+- The Node 22 suite includes the existing quiz tests. Build both the production and preview variants and run the Wrangler dry run.
 - Local Wrangler, Chromium desktop: home CTA, typed suggestion and keyboard confirmation, Back and draft preservation, first action before email, required email, simulated 503 and retry, actual Markdown download, copyable text, print layout and worksheet navigation passed.
 - Hosted private demo, Chromium at 375 px: manual correction of a suggestion, sensitive-data guidance, sample email, brief, worksheet and quiz fallback passed. No horizontal overflow or POST requests were observed.
 - Local KV: synthetic submissions yielded separate `assessment:` and `diagnostic:` keys. The diagnostic record contained only email, timestamp, version, category IDs and worksheet ID. No production submissions were made.
+
+Version 2 regression cases: confirm that office-suite answers mentioning a spreadsheet still suggest the named suite, that two specific environments remain ambiguous, and that a private-only requirement can be confirmed separately from generic sensitive data. Verify that a private search brief calls for an approved environment, synthetic examples, permissions at retrieval, and human verification of cited sources. Manual intake should recommend a structured list, verification before writes, and tracking errors and missed handoffs. Keep private sample conversations out of the repo; committed tests use synthetic phrases.
