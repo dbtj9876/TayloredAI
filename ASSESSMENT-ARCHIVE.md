@@ -12,6 +12,8 @@ After question 12, visitors enter one required email address. The Cloudflare Wor
 
 In Cloudflare, open **Workers & Pages → tayloredai → Bindings** and find the KV namespace shown for `ASSESSMENT_ARCHIVE`. Open that namespace under **Storage & databases → Workers KV**. Records start with `assessment:` and contain a UTC timestamp, email, score, readiness band, bottleneck and assessment version. Answer-by-answer responses, IP addresses and user-agent strings are not included in the stored records. Limit namespace access to authorized account members.
 
+The Guided AI Diagnostic uses the same namespace with a separate `diagnostic:` prefix. Its records contain the email, UTC timestamp, four selected category IDs, matched worksheet ID, and diagnostic version. Optional free text is matched in the browser and never sent. The Worker generates the brief from the same versioned content as the browser; it does not send email or store the brief or a transcript. Update `src/diagnostic.mjs` when refining recommendations, prompts, or worksheet copy. Bump `DIAGNOSTIC_VERSION` when changing category meanings or brief rules so archived submissions can be interpreted accurately.
+
 ## Test without production data
 
 ```sh

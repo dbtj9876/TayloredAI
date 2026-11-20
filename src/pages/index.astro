@@ -103,9 +103,12 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
       <div>
         <span class="eyebrow" style="color:#7FD8C9">Free AI readiness assessment</span>
         <h2>Where should AI fit in your business?</h2>
-        <p>Answer 12 quick questions, then enter your email to see your AI Readiness Score and practical next steps right on the page.</p>
+        <p>Bring one business problem to the four-step Guided AI Diagnostic for a practical first move. Or take the 12-question assessment for a quick AI Readiness Score.</p>
       </div>
-      <a href="./assessment/" class="btn btn-light">Start the assessment — 5 minutes</a>
+      <div style="display:grid;gap:10px;justify-items:start">
+        <a href="./diagnostic/" class="btn btn-light">Try the Guided AI Diagnostic</a>
+        <a href="./assessment/" style="color:white;text-decoration:underline;text-underline-offset:3px">Take the 12-question assessment</a>
+      </div>
     </div>
   </section>
 

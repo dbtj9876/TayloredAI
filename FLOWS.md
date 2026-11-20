@@ -47,3 +47,19 @@ Repair QA: The static build passed. Desktop and 375px Chromium runs reached resu
 - Verify desktop and 375px layout and rerun site navigation, FAQ, and contact input checks.
 
 Archive QA: Four automated tests and the Wrangler dry-run deployment passed. Desktop and 375px Chromium finished the form through the local Worker, blocked empty/malformed input, and preserved the draft through Back and a simulated save failure. Direct local KV inspection showed exactly two synthetic records after a duplicate request; GET returned 405. Thirteen routes, the 404 page, seven site navigation links, five service FAQs, and contact fields passed.
+
+## Guided AI Diagnostic
+- Open from the home page or existing assessment. Complete four questions by choosing options or typing and confirming a suggested category. Back preserves the choices; later prompts reflect earlier choices.
+- Get a tailored first action before entering email. Blank emails cannot unlock the full brief; a failed save preserves the draft. A successful save shows a printable/downloadable brief and a direct, ungated worksheet link.
+- Verify a manual-work scenario and a sensitive-data scenario have different actions and risk checks. Verify unrecognized or uncertain text can be classified manually and is not sent or archived.
+- Confirm archive requests contain only category IDs and the required email, use a separate `diagnostic:` record prefix, and preserve the existing quiz flow and record format. The hosted demo saves nothing.
+- Test desktop and 375px, keyboard controls, real download, the worksheet link, and existing route regressions without submitting to production.
+
+Verification for the first version:
+
+- The Node 22 suite includes the existing quiz tests. Build both the production and preview variants and run the Wrangler dry run.
+- Local Wrangler, Chromium desktop: home CTA, typed suggestion and keyboard confirmation, Back and draft preservation, first action before email, required email, simulated 503 and retry, actual Markdown download, copyable text, print layout and worksheet navigation passed.
+- Hosted private demo, Chromium at 375 px: manual correction of a suggestion, sensitive-data guidance, sample email, brief, worksheet and quiz fallback passed. No horizontal overflow or POST requests were observed.
+- Local KV: synthetic submissions yielded separate `assessment:` and `diagnostic:` keys. The diagnostic record contained only email, timestamp, version, category IDs and worksheet ID. No production submissions were made.
+
+Version 2 regression cases: confirm that office-suite answers mentioning a spreadsheet still suggest the named suite, that two specific environments remain ambiguous, and that a private-only requirement can be confirmed separately from generic sensitive data. Verify that a private search brief calls for an approved environment, synthetic examples, permissions at retrieval, and human verification of cited sources. Manual intake should recommend a structured list, verification before writes, and tracking errors and missed handoffs. Keep private sample conversations out of the repo; committed tests use synthetic phrases.

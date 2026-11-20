@@ -1,6 +1,9 @@
 import { ASSESSMENT_VERSION, scoreAssessment, validAnswers } from '../src/assessment.mjs';
+import { DIAGNOSTIC_VERSION, makeBrief, validProfile } from '../src/diagnostic.mjs';
 
 const PATH = '/api/assessment';
+const DIAGNOSTIC_PATH = '/api/diagnostic';
+const DIAGNOSTIC_FIELDS = new Set(['id', 'version', 'email', 'profile', 'website']);
 const MAX_BODY_BYTES = 2048;
 const VALID_HOSTS = new Set(['tayloredai.com', 'www.tayloredai.com']);
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
@@ -35,7 +38,7 @@ async function readPayload(request) {
   }
 }
 
-async function archiveAssessment(request, env, url) {
+async function archiveAssessment(request, env, url, diagnostic = false) {
   if (request.method !== 'POST') return json({ error: 'method' }, 405, { Allow: 'POST' });
   const live = url.protocol === 'https:' && VALID_HOSTS.has(url.hostname);
   const local = env.ASSESSMENT_LOCAL_DEV === '1' && LOCAL_HOSTS.has(url.hostname);
@@ -55,31 +58,34 @@ async function archiveAssessment(request, env, url) {
     if (!success) return json({ error: 'rate' }, 429, { 'Retry-After': '60' });
 
     const body = await readPayload(request);
-    if (!body || !validAnswers(body.answers)
+    const responseData = diagnostic ? body?.profile : body?.answers;
+    if (!body || !(diagnostic ? validProfile(responseData) : validAnswers(responseData))
+        || (diagnostic && Object.keys(body).some(key => !DIAGNOSTIC_FIELDS.has(key)))
         || typeof body.id !== 'string'
         || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.id)
         || body.website !== '') {
       return json({ error: 'submission' }, 400);
     }
-    if (body.version !== ASSESSMENT_VERSION) return json({ error: 'version' }, 409);
+    const version = diagnostic ? DIAGNOSTIC_VERSION : ASSESSMENT_VERSION;
+    if (body.version !== version) return json({ error: 'version' }, 409);
     const email = typeof body.email === 'string' ? body.email.trim() : '';
     if (email.length > 254 || !/^[^\s@]{1,64}@[^\s@]+\.[^\s@]+$/u.test(email)) {
       return json({ error: 'email' }, 400);
     }
 
-    const result = scoreAssessment(body.answers);
+    const result = diagnostic ? makeBrief(responseData) : scoreAssessment(responseData);
+    const stableData = diagnostic ? Object.entries(responseData).sort(([a], [b]) => a.localeCompare(b)) : responseData;
     // Identical retries share a key. The opaque digest keeps email out of KV key names.
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(
-      JSON.stringify([body.id, ASSESSMENT_VERSION, email, body.answers]),
+      JSON.stringify([body.id, version, email, stableData]),
     ));
-    const key = 'assessment:' + Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+    const key = (diagnostic ? 'diagnostic:' : 'assessment:') + Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
     if (!await env.ASSESSMENT_ARCHIVE.get(key)) {
-      await env.ASSESSMENT_ARCHIVE.put(key, JSON.stringify({
-        assessmentVersion: ASSESSMENT_VERSION,
-        submittedAt: new Date().toISOString(),
-        email,
-        ...result,
-      }));
+      const base = { submittedAt: new Date().toISOString(), email };
+      const record = diagnostic
+        ? { ...base, diagnosticVersion: version, profile: responseData, worksheet: result.worksheet }
+        : { ...base, assessmentVersion: version, ...result };
+      await env.ASSESSMENT_ARCHIVE.put(key, JSON.stringify(record));
     }
     return json(result, 200);
   } catch {
@@ -94,6 +100,9 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === PATH || url.pathname === `${PATH}/`) {
       return archiveAssessment(request, env, url);
+    }
+    if (url.pathname === DIAGNOSTIC_PATH || url.pathname === `${DIAGNOSTIC_PATH}/`) {
+      return archiveAssessment(request, env, url, true);
     }
     return env.ASSETS.fetch(request);
   },
