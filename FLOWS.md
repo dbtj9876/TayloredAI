@@ -28,3 +28,22 @@
 - Corrected two adjacent existing link issues: Services overview pillar URLs and service-sidebar assessment URLs.
 - Existing assessment emits `Unexpected identifier 'as'`; the current production assessment also has no rendered Start button. This predates this addition and is not repaired here.
 - Existing booking placeholder and missing form-service configuration remain outside scope.
+
+## Assessment script repair
+- From the home page or header, open AI Assessment. Expect the Start the assessment button to render without a browser script error.
+- Select Start the assessment. Expect Question 1 of 12, four answers, and a disabled Back button.
+- Select an answer, use Back, and change the answer. Expect one question advance per selection and the latest answer to count toward the score.
+- Complete all 12 questions. Expect a score, readiness band, tailored bottleneck note and three recommendations. The final answer should change the bottleneck note, not the score.
+- Verify the start, question and results screens on desktop and at 375px. The optional email request must not appear when its form service is unconfigured. Do not submit anything to a live form service.
+
+Repair QA: The static build passed. Desktop and 375px Chromium runs reached results with no script errors or horizontal overflow. Back and answer replacement worked; 100/100 and 0/100 mapped to the expected bands, and changing the last answer changed only the bottleneck note. Thirteen site routes, seven navigation links, five service FAQs, and contact inputs passed without sending any live submissions.
+
+## Required assessment email and archive
+- After answering question 12, expect a single required email field, a short archive disclosure and a See my results button. No score is displayed before saving.
+- Blank and malformed emails do not submit. Back returns to question 12 and preserves the email draft during this visit.
+- A successful, same-origin submission saves the email, computed result and timestamp, then shows the score and recommendations without waiting for an email.
+- A failed save keeps answers and email in the form and offers a retry. Repeating an identical request does not create a second archive record.
+- No public endpoint lists or reads archived submissions. Use synthetic addresses only in local QA. The review-only demo does not submit or archive email.
+- Verify desktop and 375px layout and rerun site navigation, FAQ, and contact input checks.
+
+Archive QA: Four automated tests and the Wrangler dry-run deployment passed. Desktop and 375px Chromium finished the form through the local Worker, blocked empty/malformed input, and preserved the draft through Back and a simulated save failure. Direct local KV inspection showed exactly two synthetic records after a duplicate request; GET returned 405. Thirteen routes, the 404 page, seven site navigation links, five service FAQs, and contact fields passed.

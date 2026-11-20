@@ -121,7 +121,7 @@ p { max-width: 68ch; }
 
 /* ============ Hero ============ */
 .hero {
-  padding: clamp(64px, 9vw, 110px) 0 clamp(48px, 6vw, 72px);
+  padding-block: clamp(64px, 9vw, 110px) clamp(48px, 6vw, 72px);
   position: relative;
   overflow: hidden;
 }
@@ -535,6 +535,18 @@ footer {
   font-size: 0.9rem;
 }
 .quiz-back:hover { color: var(--ink); }
+.quiz-email { max-width: 490px; }
+.quiz-email label { display: block; margin-bottom: 6px; font-weight: 700; }
+.quiz-email input[type="email"] {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--line);
+  border-radius: 9px; background: var(--bg); color: var(--ink); font: inherit;
+}
+.quiz-email input[type="email"]:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.quiz-email-note { margin: 12px 0 20px; color: var(--ink-soft); font-size: 0.9rem; }
+.quiz-email-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.quiz-email-actions .quiz-back { background: transparent; min-height: 44px; padding-inline: 8px; }
+.quiz-email button:disabled { opacity: 0.65; cursor: wait; }
+.quiz-email .form-status:empty { margin: 0; }
 
 /* Quiz result */
 .score-ring {

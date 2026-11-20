@@ -1,0 +1,17 @@
+{
+  "name": "tayloredai",
+  "main": "./worker/index.mjs",
+  "compatibility_date": "2025-11-06",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/assessment", "/api/assessment/"]
+  },
+  "kv_namespaces": [{ "binding": "ASSESSMENT_ARCHIVE" }],
+  "ratelimits": [{
+    "name": "ASSESSMENT_RATE",
+    "namespace_id": "29751081",
+    "simple": { "limit": 12, "period": 60 }
+  }]
+}
