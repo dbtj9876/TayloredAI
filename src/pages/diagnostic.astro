@@ -1,0 +1,337 @@
+---
+import Base from '../layouts/Base.astro';
+import { STEPS } from '../diagnostic.mjs';
+const demo = import.meta.env.PUBLIC_ASSESSMENT_DEMO === '1';
+---
+<Base title="Guided AI Diagnostic | Taylored AI" description="Describe one business problem in four short steps and get a practical AI architecture brief tailored to your workflow.">
+  <header class="diagnostic-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../">Home</a> / Guided AI Diagnostic</div>
+      <span class="eyebrow">Free guided diagnostic</span>
+      <h1>Find the right AI starting point.</h1>
+      <p class="lede">Bring one business problem. In four short steps, get a practical first move and a brief you can share with your team.</p>
+    </div>
+  </header>
+
+  <main class="wrap diagnostic-shell" id="diagnostic" data-demo={demo ? '1' : '0'}
+    data-worksheets={demo ? '../resources/diagnostic-worksheets/index.html' : '../resources/diagnostic-worksheets/'} hidden>
+    <section class="diagnostic-card" aria-labelledby="diagnostic-heading">
+      <div class="diagnostic-step" id="diagnostic-step">Step 1 of 4</div>
+      <h2 id="diagnostic-heading" tabindex="-1"></h2>
+      <p class="diagnostic-intro" id="diagnostic-intro"></p>
+
+      <form id="diagnostic-question" autocomplete="off">
+        <div class="diagnostic-text">
+          <label for="diagnostic-input">Describe it in your own words <span>(optional)</span></label>
+          <p id="diagnostic-privacy"><strong>Keep it general.</strong> Don’t enter names, customer records, passwords, or confidential details.</p>
+          <textarea id="diagnostic-input" rows="3" maxlength="350" spellcheck="false" aria-describedby="diagnostic-example diagnostic-privacy"></textarea>
+          <p id="diagnostic-example"></p>
+        </div>
+        <fieldset class="diagnostic-options">
+          <legend>Or choose the closest match</legend>
+          <div id="diagnostic-choices"></div>
+        </fieldset>
+        <p class="diagnostic-message" id="diagnostic-message" role="status"></p>
+        <div class="diagnostic-actions">
+          <button type="submit" class="btn btn-primary" id="diagnostic-next">Continue</button>
+          <button class="btn btn-ghost" type="button" data-back>Back</button>
+        </div>
+      </form>
+
+      <div id="diagnostic-teaser" hidden>
+        <div class="diagnostic-highlight">
+          <strong>Your first move</strong>
+          <p id="diagnostic-insight"></p>
+        </div>
+        <form id="diagnostic-email-form" method="post" action="../api/diagnostic">
+          <label for="diagnostic-email">Email address</label>
+          <input name="email" id="diagnostic-email" type="email" autocomplete="email" maxlength="254"
+            required aria-describedby="diagnostic-email-note" placeholder="you@company.com" />
+          <div hidden><label>Leave blank <input name="website" tabindex="-1" autocomplete="off" /></label></div>
+          <p id="diagnostic-email-note">{demo
+            ? 'Review preview only. The sample address is not sent or saved.'
+            : 'Taylored AI saves your email and the four selected categories privately and may follow up about your diagnostic. Your brief appears here, not in your inbox.'}</p>
+          <p class="diagnostic-message" id="diagnostic-save-status" role="status"></p>
+          <div class="diagnostic-actions">
+            <button type="submit" class="btn btn-primary">Get my brief</button>
+            <button class="btn btn-ghost" type="button" data-back>Back</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="diagnostic-result" hidden>
+        <div class="diagnostic-highlight"><strong>Recommended approach</strong><p id="brief-approach"></p></div>
+        <div class="brief-block"><h3>Risk to verify</h3><p id="brief-risk"></p></div>
+        <div class="brief-block"><h3>Three next steps</h3><ol id="brief-actions"></ol></div>
+        <div class="brief-block"><h3>Governance checklist</h3><ul id="brief-governance"></ul></div>
+        <div class="brief-block brief-resource"><h3>Put it into practice</h3><a id="brief-worksheet"></a></div>
+        <div class="diagnostic-actions">
+          <a class="btn btn-primary" id="brief-download" download="taylored-ai-architecture-brief.md">Download brief</a>
+          <button class="btn btn-ghost" id="brief-print" type="button">Print / save as PDF</button>
+          <a class="btn btn-ghost" href="../contact/">Talk it through</a>
+        </div>
+        <details class="brief-copy">
+          <summary>Show copyable brief</summary>
+          <textarea id="brief-copy-text" readonly rows="8" aria-label="Copyable architecture brief"></textarea>
+        </details>
+      </div>
+    </section>
+
+    <aside class="diagnostic-aside">
+      <span class="eyebrow">Your diagnostic</span>
+      <h2>One workflow. One starting point.</h2>
+      <ol class="diagnostic-progress" aria-label="Diagnostic progress">
+        {STEPS.map(({ label }, i) => <li data-step={i}><span aria-hidden="true">{i + 1}</span><div>{label}<small></small></div></li>)}
+      </ol>
+      <p>Text you type is matched in this tab. Only your selected categories and email are sent when you request the brief.</p>
+      <a class="diagnostic-quiz-link" href="../assessment/">Prefer a quick score? Take the 12-question assessment.</a>
+    </aside>
+  </main>
+  <noscript><p class="wrap">The diagnostic needs JavaScript. You can still use the <a href="../resources/diagnostic-worksheets/">free pilot worksheets</a>.</p></noscript>
+</Base>
+
+<script>
+  import { DIAGNOSTIC_VERSION, STEPS, WORKSHEETS, makeBrief, suggestAnswer, validProfile } from '../diagnostic.mjs';
+
+  function initDiagnostic(root: HTMLElement) {
+    const get = <T extends HTMLElement>(id: string) => root.querySelector<T>(`#${id}`)!;
+    const demo = root.dataset.demo === '1';
+    const heading = get('diagnostic-heading');
+    const question = get<HTMLFormElement>('diagnostic-question');
+    const input = get<HTMLTextAreaElement>('diagnostic-input');
+    const options = get('diagnostic-choices');
+    const message = get('diagnostic-message');
+    const intro = get('diagnostic-intro');
+    const teaser = get('diagnostic-teaser');
+    const result = get('diagnostic-result');
+    const form = get<HTMLFormElement>('diagnostic-email-form');
+    const email = get<HTMLInputElement>('diagnostic-email');
+    const status = get('diagnostic-save-status');
+    const next = get('diagnostic-next');
+    const profile: Record<string, string> = {};
+    const drafts: Record<string, string> = {};
+    let stage = 0;
+    let pending = false;
+    let submissionId: string | undefined;
+
+    function showStage(focus = true) {
+      get('diagnostic-step').textContent = stage < 4 ? `Step ${stage + 1} of 4` : stage === 4 ? 'Your first move' : 'Your diagnostic brief';
+      question.hidden = stage >= 4;
+      teaser.hidden = stage !== 4;
+      result.hidden = stage !== 5;
+      root.querySelectorAll<HTMLElement>('[data-step]').forEach((item, i) => {
+        if (i === stage) item.setAttribute('aria-current', 'step');
+        else item.removeAttribute('aria-current');
+        const step = STEPS[i];
+        item.querySelector('small')!.textContent = i < stage ? (step.options as Record<string, string>)[profile[step.id]] ?? '' : '';
+      });
+
+      if (stage < 4) {
+        const step = STEPS[stage];
+        heading.textContent = step.question;
+        intro.textContent = stage === 1 && ['microsoft', 'google'].includes(profile.tools)
+          ? `Think about what this workflow touches in ${profile.tools === 'microsoft' ? 'Microsoft 365' : 'Google Workspace'}.`
+          : stage === 2 && ['restricted', 'unknown'].includes(profile.data)
+            ? 'Think about where the process slows down, without including any details from the records.'
+            : stage === 3 && profile.bottleneck !== 'unknown'
+              ? `For ${STEPS[2].options[profile.bottleneck as keyof typeof STEPS[2]['options']]?.toLowerCase() ?? 'that workflow'}, what would improve first?`
+              : 'Type a short answer or select an option. You can go back at any time.';
+        get('diagnostic-example').textContent = step.example;
+        input.value = drafts[step.id] ?? '';
+        message.textContent = '';
+        options.replaceChildren();
+        for (const [value, text] of Object.entries(step.options)) {
+          const label = document.createElement('label');
+          const radio = document.createElement('input');
+          const title = document.createElement('span');
+          radio.type = 'radio';
+          radio.name = 'answer';
+          radio.value = value;
+          radio.checked = profile[step.id] === value;
+          title.textContent = text;
+          label.append(radio, title);
+          options.append(label);
+        }
+        next.textContent = stage === 3 ? 'See my first move' : 'Continue';
+        question.querySelector<HTMLButtonElement>('[data-back]')!.disabled = stage === 0;
+      } else if (stage === 4) {
+        heading.textContent = 'Here’s where I’d start.';
+        intro.textContent = 'You can use this recommendation now. Get the full brief for the approach, risks, and worksheet.';
+        get('diagnostic-insight').textContent = makeBrief(profile).insight;
+        status.textContent = '';
+      } else {
+        heading.textContent = 'Your AI Architecture Brief';
+        intro.textContent = 'A starting point based on what you shared, not a technical audit or a finding about your systems.';
+      }
+      if (focus) heading.focus();
+    }
+
+    question.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const step = STEPS[stage];
+      const selected = options.querySelector<HTMLInputElement>('input:checked');
+      drafts[step.id] = input.value;
+      if (!selected) {
+        const match = suggestAnswer(step, input.value);
+        const radio = Array.from(options.querySelectorAll<HTMLInputElement>('input')).find((item) => item.value === match);
+        if (radio) {
+          radio.checked = true;
+          message.textContent = `Suggested match: ${(step.options as Record<string, string>)[match!]}. Confirm with ${stage === 3 ? 'See my first move' : 'Continue'}, or choose another option.`;
+        } else {
+          message.textContent = 'Choose the closest option, or choose “Not sure yet.”';
+          options.querySelector('input')?.focus();
+        }
+        return;
+      }
+      profile[step.id] = selected.value;
+      stage += 1;
+      showStage();
+    });
+    input.addEventListener('input', () => {
+      const selected = options.querySelector<HTMLInputElement>('input:checked');
+      if (selected) selected.checked = false;
+      message.textContent = '';
+    });
+    options.addEventListener('change', () => { message.textContent = ''; });
+    root.querySelectorAll<HTMLButtonElement>('[data-back]').forEach((button) => button.addEventListener('click', () => {
+      if (pending || stage <= 0) return;
+      if (stage < 4) {
+        const step = STEPS[stage];
+        drafts[step.id] = input.value;
+        const selected = options.querySelector<HTMLInputElement>('input:checked');
+        if (selected) profile[step.id] = selected.value;
+        else delete profile[step.id];
+      }
+      stage -= 1;
+      showStage();
+    }));
+
+    function showBrief(brief: ReturnType<typeof makeBrief>) {
+      get('brief-approach').textContent = brief.approach;
+      get('brief-risk').textContent = brief.risk;
+      for (const [id, items] of [['brief-actions', brief.actions], ['brief-governance', brief.governance]] as const) {
+        get(id).replaceChildren(...items.map((item) => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          return li;
+        }));
+      }
+      const worksheet = WORKSHEETS[brief.worksheet as keyof typeof WORKSHEETS];
+      const resource = get<HTMLAnchorElement>('brief-worksheet');
+      resource.textContent = worksheet.title;
+      resource.href = `${root.dataset.worksheets}#${brief.worksheet}`;
+      const text = [
+        '# Taylored AI Architecture Brief', '', 'A planning aid based on self-reported information, not a technical audit.', '',
+        '## Recommended approach', brief.approach, '', '## Risk to verify', brief.risk, '', '## Three next steps',
+        ...brief.actions.map((s, i) => `${i + 1}. ${s}`), '', '## Governance checklist', ...brief.governance.map((s) => `- ${s}`),
+        '', `## Worksheet`, `[${worksheet.title}](https://tayloredai.com/resources/diagnostic-worksheets/#${brief.worksheet})`,
+      ].join('\n');
+      get<HTMLTextAreaElement>('brief-copy-text').value = text;
+      const download = get<HTMLAnchorElement>('brief-download');
+      download.href = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+      for (const key of Object.keys(drafts)) delete drafts[key];
+      input.value = '';
+      stage = 5;
+      root.classList.add('brief-ready');
+      showStage();
+    }
+
+    if (demo) {
+      email.value = 'demo@example.com';
+      email.readOnly = true;
+    }
+    get('brief-print').addEventListener('click', () => window.print());
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (pending || !form.reportValidity() || !validProfile(profile)) return;
+      if (demo) { showBrief(makeBrief(profile)); return; }
+      const fields = new FormData(form);
+      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const back = form.querySelector<HTMLButtonElement>('[data-back]')!;
+      pending = submit.disabled = back.disabled = email.readOnly = true;
+      status.textContent = 'Preparing your brief…';
+      try {
+        submissionId ??= crypto.randomUUID();
+        const response = await fetch('../api/diagnostic', {
+          method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: submissionId, version: DIAGNOSTIC_VERSION, email: email.value.trim(), profile, website: fields.get('website') }),
+        });
+        if (response.ok) {
+          showBrief(await response.json());
+          return;
+        }
+        const { error } = await response.json().catch(() => ({}));
+        status.textContent = error === 'email' ? 'Enter a valid email address and try again.'
+          : response.status === 429 ? 'Please wait a minute before trying again. Your answers are still here.'
+          : response.status === 409 ? 'The diagnostic has changed. Reload to take the current version.'
+          : 'We couldn’t save the brief. Your answers are still here. Please try again.';
+      } catch {
+        status.textContent = 'We couldn’t save the brief. Your answers are still here. Please try again.';
+      } finally {
+        pending = submit.disabled = back.disabled = email.readOnly = false;
+      }
+    });
+    root.hidden = false;
+    showStage(false);
+  }
+
+  const root = document.querySelector<HTMLElement>('#diagnostic');
+  if (root) initDiagnostic(root);
+</script>
+
+<style>
+  .diagnostic-hero { padding: clamp(44px, 6vw, 85px) 0 56px; background: linear-gradient(109deg, #edf6fa, #e0f7ed 72%, #d2f2e7); }
+  .diagnostic-hero .breadcrumb { margin-bottom: 18px; }
+  .diagnostic-hero .eyebrow { margin-bottom: 10px; color: #315c57; }
+  .diagnostic-hero .lede { margin-top: 12px; }
+  .diagnostic-shell { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 34px); padding-top: 28px; align-items: start; }
+  .diagnostic-shell[hidden] { display: none; }
+  .diagnostic-card, .diagnostic-aside { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(20px, 4vw, 38px); }
+  .diagnostic-card { box-shadow: var(--shadow); }
+  .diagnostic-card h2 { font-size: clamp(1.5rem, 3vw, 2.02rem); scroll-margin-top: 96px; }
+  .diagnostic-step { margin-bottom: 9px; text-transform: uppercase; letter-spacing: .12em; color: #17685b; font-size: .76rem; font-weight: 800; }
+  .diagnostic-intro { margin: 10px 0 22px; color: var(--ink-soft); }
+  .diagnostic-text label, #diagnostic-email-form label, .diagnostic-options legend { display: block; font-weight: 750; font-size: .94rem; }
+  .diagnostic-text label span, .diagnostic-text p, #diagnostic-email-note { color: var(--muted); font-size: .84rem; font-weight: 500; }
+  .diagnostic-text p, #diagnostic-email-note { margin-top: 6px; }
+  .diagnostic-text textarea, #diagnostic-email, #brief-copy-text { width: 100%; display: block; margin-top: 6px; padding: 11px 12px; border: 1px solid #bac8d5; border-radius: 9px; background: var(--bg); color: var(--ink); font: inherit; }
+  .diagnostic-text textarea, #brief-copy-text { resize: vertical; }
+  .diagnostic-options { min-width: 0; border: 0; margin: 18px 0 0; }
+  #diagnostic-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  #diagnostic-choices :global(label) { display: flex; align-items: center; gap: 9px; padding: 9px 11px; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: .87rem; }
+  #diagnostic-choices :global(label:has(input:checked)) { border-color: #258d79; background: #ecfaf4; }
+  #diagnostic-choices :global(input) { flex-shrink: 0; accent-color: #197361; }
+  .diagnostic-message { margin-top: 10px; font-size: .86rem; color: #365b54; font-weight: 650; }
+  .diagnostic-message:empty { display: none; }
+  .diagnostic-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 18px; }
+  .diagnostic-actions button:disabled { opacity: .55; cursor: not-allowed; }
+  .diagnostic-aside { background: #f3f9f6; }
+  .diagnostic-aside .eyebrow { color: #315c57; margin-bottom: 8px; }
+  .diagnostic-aside h2 { font-size: 1.3rem; }
+  .diagnostic-aside p { color: var(--ink-soft); font-size: .86rem; }
+  .diagnostic-progress { list-style: none; margin: 17px 0; display: grid; gap: 8px; }
+  .diagnostic-progress li { display: flex; align-items: flex-start; gap: 9px; min-height: 30px; font-weight: 650; font-size: .89rem; }
+  .diagnostic-progress li > span { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border-radius: 50%; background: #e1eee8; color: #315c57; font-size: .75rem; }
+  .diagnostic-progress li[aria-current] > span { background: #216f60; color: white; }
+  .diagnostic-progress small { display: block; color: var(--muted); font-weight: 550; }
+  .diagnostic-quiz-link, .brief-resource a { display: inline-block; margin-top: 12px; color: #17685b; font-size: .88rem; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+  .diagnostic-highlight { padding: 15px 17px; border-left: 4px solid #2a8a75; border-radius: 8px; background: #eaf8f1; margin-bottom: 17px; }
+  .diagnostic-highlight p { margin-top: 4px; }
+  .brief-block { padding-top: 16px; margin-top: 15px; border-top: 1px solid var(--line); }
+  .brief-block h3 { margin-bottom: 6px; }
+  .brief-block :is(ol,ul) { padding-left: 22px; }
+  .brief-block li + li { margin-top: 5px; }
+  .brief-resource a { margin-top: 0; }
+  .brief-copy { font-size: .91rem; margin-top: 17px; }
+  .brief-copy summary { cursor: pointer; color: #17685b; font-weight: 750; }
+  @media (max-width: 830px) { .diagnostic-shell { grid-template-columns: 1fr; } }
+  @media (max-width: 530px) { #diagnostic-choices { grid-template-columns: 1fr; } .diagnostic-hero { padding-bottom: 34px; } }
+  @media print {
+    :global(body:has(.brief-ready) > nav), :global(body:has(.brief-ready) > footer),
+    :global(body:has(.brief-ready)) .diagnostic-hero, .brief-ready .diagnostic-aside,
+    .brief-ready :is(.diagnostic-actions, .brief-copy) { display: none !important; }
+    .brief-ready { display: block; width: 100%; max-width: none; padding: 0; }
+    .brief-ready .diagnostic-card { padding: 0; border: 0; box-shadow: none; }
+    .brief-ready :is(.brief-block, .diagnostic-highlight) { break-inside: avoid; }
+  }
+</style>

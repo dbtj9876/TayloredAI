@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import { WORKSHEETS } from '../../diagnostic.mjs';
+---
+<Base title="AI Pilot Worksheets | Taylored AI" description="Four practical worksheets for auditing a workflow, improving replies, preparing data, or training your team. No signup required.">
+  <header class="page-hero">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="../../">Home</a> / <a href="../">Resources</a> / Diagnostic Worksheets</div>
+      <h1>AI pilot worksheets</h1>
+      <p class="lede">Pick one workflow, complete the four prompts with its owner, and agree what to measure before you buy or build anything. No signup required.</p>
+    </div>
+  </header>
+  <main class="wrap worksheet-list">
+    {Object.entries(WORKSHEETS).map(([id, worksheet]) => (
+      <article id={id}>
+        <h2>{worksheet.title}</h2>
+        <p>{worksheet.example}</p>
+        <ol>{worksheet.prompts.map(prompt => <li>{prompt}</li>)}</ol>
+      </article>
+    ))}
+    <a href="../../diagnostic/" class="btn btn-primary">Try the Guided AI Diagnostic</a>
+  </main>
+</Base>
+<style>
+  .worksheet-list { display: grid; gap: 18px; margin-top: 15px; justify-items: start; }
+  article { width: 100%; padding: clamp(20px, 4vw, 37px); background: white; border: 1px solid var(--line); border-radius: var(--radius); scroll-margin-top: 90px; }
+  article:target { border-color: #288671; box-shadow: var(--shadow); }
+  article h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
+  article p { margin: 7px 0 12px; color: var(--ink-soft); }
+  article ol { padding-left: 22px; }
+  article li + li { margin-top: 5px; }
+</style>
